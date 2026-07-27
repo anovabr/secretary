@@ -209,12 +209,6 @@ a{color:inherit}
   overflow:hidden; /* contém o círculo decorativo, evita scroll horizontal */
   padding-block:clamp(2rem,4.5vh,3.6rem) clamp(3rem,7vh,5rem);
 }
-.hero::before{
-  content:"";position:absolute;z-index:-1;
-  width:min(58vw,620px);aspect-ratio:1;border-radius:50%;
-  background:radial-gradient(circle at 30% 30%, var(--pink-soft), transparent 68%);
-  top:-16%;right:-14%;pointer-events:none;
-}
 /* Duas colunas no desktop; no celular a ordem vira
    texto → cards → família, para as três opções subirem na tela. */
 .hero__grid{
@@ -235,12 +229,12 @@ a{color:inherit}
   }
 }
 
+/* Linha com régua em vez de pílula flutuante: menos peso, mesma informação. */
 .pin{
-  display:inline-flex;align-items:center;gap:.5rem;
-  background:var(--paper);border:1px solid var(--line);
-  padding:.42rem .85rem .42rem .6rem;border-radius:999px;
+  display:inline-flex;align-items:center;gap:.45rem;
+  padding:0 0 .55rem;
+  border-bottom:1.5px solid var(--line);
   font-size:.78rem;font-weight:600;color:var(--ink-70);
-  box-shadow:var(--shadow-sm);
 }
 .pin b{color:var(--ink);font-weight:700}
 .pin svg{color:var(--pink-deep)}
@@ -272,24 +266,25 @@ a{color:inherit}
   align-items:center;gap:.95rem;
   width:100%;text-align:left;
   background:var(--paper);border:1.5px solid var(--line);
-  border-radius:var(--r-lg);padding:.95rem 1.05rem;
+  border-radius:16px;padding:.85rem .95rem;
   cursor:pointer;
-  transition:transform .22s var(--ease), border-color .22s var(--ease), box-shadow .22s var(--ease), background .22s var(--ease);
+  transition:transform .22s var(--ease), border-color .22s var(--ease), background .22s var(--ease);
 }
-.svc:hover{transform:translateY(-3px);border-color:var(--pink);box-shadow:var(--shadow-md)}
-.svc:hover .svc__go{background:var(--pink);color:var(--ink);transform:translateX(2px)}
+/* Sem sombra: os cards ficam calmos e o título domina a dobra. */
+.svc:hover{transform:translateY(-2px);border-color:var(--pink)}
+.svc:hover .svc__go{transform:translateX(3px)}
 .svc__ico{
-  width:48px;height:48px;border-radius:16px;flex:none;
+  width:44px;height:44px;border-radius:14px;flex:none;
   display:grid;place-items:center;
   background:var(--pink-tint);color:var(--pink-deep);
 }
 .svc__t{display:block;font-family:var(--display);text-transform:uppercase;font-size:.94rem;letter-spacing:-.005em;line-height:1.1}
 .svc__d{display:block;font-size:.83rem;color:var(--ink-50);margin-top:.22rem;line-height:1.45}
 .svc__go{
-  width:34px;height:34px;border-radius:50%;flex:none;
+  width:32px;height:32px;flex:none;
   display:grid;place-items:center;
-  background:var(--pink-tint);color:var(--pink-deep);
-  transition:background .22s var(--ease), color .22s var(--ease), transform .22s var(--ease);
+  background:transparent;color:var(--pink-deep);
+  transition:transform .22s var(--ease);
 }
 .picker__foot{
   display:flex;align-items:center;gap:.5rem;
