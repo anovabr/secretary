@@ -345,6 +345,7 @@ a{color:inherit}
 .card__foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
 .price{font-size:.83rem;color:var(--ink-50)}
 .price b{display:block;font-family:var(--display);font-size:1.28rem;color:var(--ink);letter-spacing:-.01em;line-height:1.15}
+.price em{display:block;font-style:normal;font-size:.75rem;color:var(--ink-50);margin-top:.2rem}
 
 /* ---------- steps ---------- */
 .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:1.6rem;counter-reset:s}
@@ -472,6 +473,8 @@ a{color:inherit}
 .footer__links{display:flex;gap:1.4rem;flex-wrap:wrap}
 .footer__brand{font-family:var(--display);text-transform:uppercase;color:var(--cream);font-size:1rem}
 .footer__brand em{font-style:normal;color:var(--pink)}
+/* espaço para os botões flutuantes não cobrirem os links do rodapé */
+@media (max-width:640px){ .footer{padding-bottom:calc(3rem + 76px)} }
 
 /* ---------- modal ---------- */
 .overlay{
@@ -594,6 +597,40 @@ a{color:inherit}
 .modal__foot{padding:1rem 1.4rem 1.3rem;border-top:1px solid var(--line);display:flex;gap:.65rem;flex:none;background:var(--cream)}
 .modal__foot .btn{flex:1}
 
+/* ---------- troca de serviço dentro do modal ---------- */
+.swap{
+  display:flex;gap:.3rem;margin-bottom:1.15rem;
+  background:var(--paper);border:1.5px solid var(--line);border-radius:999px;padding:.28rem;
+}
+.swap button{
+  flex:1;border:0;background:none;border-radius:999px;cursor:pointer;
+  padding:.52rem .3rem;font-size:.79rem;font-weight:600;color:var(--ink-50);
+  transition:background .18s var(--ease), color .18s var(--ease);
+}
+.swap button:hover:not([aria-pressed="true"]){color:var(--ink)}
+.swap button[aria-pressed="true"]{background:var(--ink);color:var(--cream)}
+
+/* ---------- botões flutuantes ---------- */
+.fabs{
+  position:fixed;z-index:70;
+  right:clamp(.85rem,2.4vw,1.6rem);
+  bottom:calc(clamp(.85rem,2.4vw,1.6rem) + env(safe-area-inset-bottom,0px));
+  display:flex;flex-direction:column;align-items:flex-end;gap:.55rem;
+}
+.fab{
+  border:1.5px solid var(--ink);border-radius:999px;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;gap:.45rem;
+  box-shadow:var(--shadow-md);
+  transition:transform .25s var(--ease), opacity .25s var(--ease),
+             visibility .25s var(--ease), box-shadow .2s var(--ease);
+}
+.fab:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.fab--book{background:var(--pink);color:var(--ink);padding:.78rem 1.3rem;font-size:.9rem;font-weight:700}
+.fab--top{background:var(--paper);color:var(--ink);width:44px;height:44px;padding:0}
+.fab[data-hide="true"]{opacity:0;visibility:hidden;transform:translateY(12px) scale(.92);pointer-events:none}
+/* o modal já tem seu próprio CTA — os flutuantes saem de cena */
+body[data-modal="true"] .fabs{opacity:0;visibility:hidden;pointer-events:none}
+
 /* reveal */
 [data-reveal]{opacity:0;transform:translateY(20px);transition:opacity .7s var(--ease), transform .7s var(--ease)}
 [data-reveal].in{opacity:1;transform:none}
@@ -653,13 +690,12 @@ a{color:inherit}
 
         <div class="crew">
           <div class="crew__stack">
-            <img src="assets/face-vitoria.jpg" alt="Vitória, a Vica" width="52" height="52" loading="lazy">
             <img src="assets/face-pancake.jpg" alt="Pancake" width="52" height="52" loading="lazy">
             <img src="assets/face-banana.jpg" alt="Banana" width="52" height="52" loading="lazy">
           </div>
           <p class="crew__note" style="margin:0">
-            Vica, Pancake e Banana
-            <small>quem cuida — e quem ensinou a cuidar</small>
+            Pancake e Banana
+            <small>quem me ensinou a cuidar</small>
           </p>
         </div>
       </div>
@@ -755,7 +791,7 @@ a{color:inherit}
             <li>Rotas tranquilas em Laranjeiras</li>
           </ul>
           <div class="card__foot">
-            <span class="price">a partir de <b>R$ XX</b></span>
+            <span class="price">a partir de <b>R$ 25</b><em>o valor varia conforme o porte</em></span>
             <button class="btn btn--pink" data-open-booking="passeio">Ver agenda</button>
           </div>
         </article>
@@ -775,7 +811,7 @@ a{color:inherit}
             <li>Atualizações por mensagem durante o período</li>
           </ul>
           <div class="card__foot">
-            <span class="price">a partir de <b>R$ XX</b></span>
+            <span class="price"><b>Sob consulta</b><em>combinamos conforme porte e período</em></span>
             <button class="btn btn--pink" data-open-booking="petsitter">Ver agenda</button>
           </div>
         </article>
@@ -797,7 +833,7 @@ a{color:inherit}
             <li>Gentileza sempre — nunca punição</li>
           </ul>
           <div class="card__foot">
-            <span class="price">a partir de <b>R$ XX</b></span>
+            <span class="price"><b>Sob consulta</b><em>combinamos conforme o plano de treino</em></span>
             <button class="btn btn--pink" data-open-booking="adestramento">Ver agenda</button>
           </div>
         </article>
@@ -958,6 +994,21 @@ a{color:inherit}
   </div>
 </footer>
 
+<!-- ============ BOTÕES FLUTUANTES ============ -->
+<div class="fabs">
+  <button class="fab fab--top" id="to-top" data-hide="true" aria-label="Voltar ao topo da página">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M12 19V6M6 12l6-6 6 6"/>
+    </svg>
+  </button>
+  <button class="fab fab--book" id="fab-book" data-hide="true" data-open-booking="passeio">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="3.5" y="5" width="17" height="16" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/>
+    </svg>
+    Agendar
+  </button>
+</div>
+
 <!-- ============ MODAL DE AGENDAMENTO ============ -->
 <div class="overlay" id="overlay" data-open="false">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="m-title" id="modal">
@@ -979,6 +1030,11 @@ a{color:inherit}
     <div class="modal__body">
       <!-- passo 1 -->
       <div class="pane" id="pane1">
+        <div class="swap" id="swap" role="group" aria-label="Trocar de serviço">
+          <button type="button" data-svc="passeio">Passeio</button>
+          <button type="button" data-svc="petsitter">Pet sitter</button>
+          <button type="button" data-svc="adestramento">Adestramento</button>
+        </div>
         <div class="cal__bar">
           <strong class="cal__month" id="cal-month">—</strong>
           <div class="cal__nav">
@@ -1205,6 +1261,32 @@ const state = {
   els.forEach(e => io.observe(e));
 })();
 
+/* ---------------- botões flutuantes ---------------- */
+(() => {
+  const top = $('#to-top'), book = $('#fab-book');
+  const hide = (el, v) => el.setAttribute('data-hide', String(v));
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+
+  // "Agendar" só entra em cena quando os três cards da dobra saem de vista
+  new IntersectionObserver(([e]) => hide(book, e.isIntersecting), { threshold: 0 })
+    .observe($('#agendar'));
+
+  let ticking = false;
+  const onScroll = () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => { hide(top, scrollY < 600); ticking = false; });
+  };
+  addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  top.addEventListener('click', () => {
+    scrollTo({ top: 0, behavior: reduce.matches ? 'auto' : 'smooth' });
+    // o teclado volta junto com a página, não fica preso no rodapé
+    $('.brand').focus({ preventScroll: true });
+  });
+})();
+
 /* ---------------- links de contato ---------------- */
 function waLink(text) {
   const num = CONFIG.whatsapp.replace(/\D/g, '');
@@ -1239,25 +1321,43 @@ function openBooking(serviceKey, opener) {
   state.step    = 1;
   lastFocus     = opener || document.activeElement;
 
-  const svc = CONFIG.services[state.service];
-  $('#m-title').textContent = svc.nome;
-  $('#m-sub').textContent   = svc.sub;
-
-  renderCalendar();
-  renderSlots();
+  applyService(state.service);
   goStep(1);
 
   overlay.setAttribute('data-open', 'true');
+  document.body.dataset.modal = 'true';
   document.body.style.overflow = 'hidden';
   window.setTimeout(() => $('#m-close').focus(), 60);
-  say('Agendamento de ' + svc.nome + ' aberto. Escolha uma data.');
+  say('Agendamento de ' + CONFIG.services[state.service].nome + ' aberto. Escolha uma data.');
 }
 
 function closeBooking() {
   overlay.setAttribute('data-open', 'false');
+  delete document.body.dataset.modal;
   document.body.style.overflow = '';
   if (lastFocus && lastFocus.focus) lastFocus.focus();
 }
+
+/* Aplica o serviço ao modal. Usado na abertura e ao trocar pelos botões
+   do topo — por isso o passeio, data e horário são sempre zerados. */
+function applyService(key) {
+  state.service = key;
+  state.date = null;
+  state.time = null;
+  const svc = CONFIG.services[key];
+  $('#m-title').textContent = svc.nome;
+  $('#m-sub').textContent   = svc.sub;
+  $$('#swap button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.svc === key)));
+  renderCalendar();
+  renderSlots();
+  syncNext();
+}
+
+$$('#swap button').forEach(b => b.addEventListener('click', () => {
+  if (b.dataset.svc === state.service) return;
+  applyService(b.dataset.svc);
+  say(CONFIG.services[state.service].nome + ' selecionado. Escolha uma data.');
+}));
 
 function say(msg) { live.textContent = msg; }
 
