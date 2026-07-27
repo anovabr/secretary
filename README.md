@@ -49,6 +49,7 @@ assets/
   vitoria-banana.jpg
   pancake.jpg
   face-vitoria.jpg  face-pancake.jpg  face-banana.jpg
+  og-image.jpg      cartão 1200×630 da prévia de link
 README.md
 ```
 
@@ -66,8 +67,16 @@ Tipografia: **Archivo Black** nos títulos (a mais próxima do wordmark do perfi
 
 ## Publicando
 
-Qualquer hospedagem de arquivos estáticos serve. Com GitHub Pages, basta apontar
-para a branch e a raiz do repositório. Para testar localmente:
+No ar em **https://anovabr.github.io/vica/** via GitHub Pages
+(Settings → Pages → Deploy from a branch → `main` → `/ (root)`).
+Cada push para `main` republica sozinho.
+
+Se o endereço mudar — domínio próprio, por exemplo — troque a URL em três lugares
+no `<head>` do `index.html`: `canonical`, `og:url` e `og:image` (mais `twitter:image`
+e o `url`/`image` do JSON-LD). Precisam ser **URLs absolutas**: os robôs que montam
+a prévia do link no WhatsApp e no Instagram não resolvem caminho relativo.
+
+Para testar localmente:
 
 ```bash
 python3 -m http.server 8000
