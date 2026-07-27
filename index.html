@@ -220,19 +220,17 @@ a{color:inherit}
 .hero__grid{
   display:grid;
   grid-template-columns:minmax(0,1fr) minmax(0,440px);
-  grid-template-areas:"copy picker" "crew picker";
-  grid-template-rows:auto auto;
+  grid-template-areas:"copy picker";
   column-gap:clamp(2rem,5vw,4.5rem);
   row-gap:2.4rem;
-  align-items:start;
+  align-items:center;
 }
 .hero__copy{grid-area:copy}
-.crew{grid-area:crew}
-.picker{grid-area:picker;align-self:center}
+.picker{grid-area:picker}
 @media (max-width:940px){
   .hero__grid{
     grid-template-columns:minmax(0,1fr);
-    grid-template-areas:"copy" "picker" "crew";
+    grid-template-areas:"copy" "picker";
     row-gap:2rem;
   }
 }
@@ -262,15 +260,6 @@ a{color:inherit}
 }
 .hero__lead b{color:var(--ink);font-weight:600}
 
-.crew{display:flex;align-items:center;gap:.85rem;flex-wrap:wrap}
-.crew__stack{display:flex}
-.crew__stack img{
-  width:52px;height:52px;border-radius:50%;object-fit:cover;
-  border:3px solid var(--cream);margin-left:-14px;box-shadow:var(--shadow-sm);
-}
-.crew__stack img:first-child{margin-left:0}
-.crew__note{font-family:var(--hand);font-size:1.22rem;color:var(--pink-deep);line-height:1.15}
-.crew__note small{display:block;font-family:var(--body);font-size:.74rem;color:var(--ink-50);letter-spacing:.01em}
 
 /* ---------- service cards (hero) ---------- */
 .picker{display:grid;gap:.75rem}
@@ -688,16 +677,6 @@ body[data-modal="true"] .fabs{opacity:0;visibility:hidden;pointer-events:none}
           respeitando o tempo de cada animal. Atendimento em Laranjeiras e bairros vizinhos.
         </p>
 
-        <div class="crew">
-          <div class="crew__stack">
-            <img src="assets/face-pancake.jpg" alt="Pancake" width="52" height="52" loading="lazy">
-            <img src="assets/face-banana.jpg" alt="Banana" width="52" height="52" loading="lazy">
-          </div>
-          <p class="crew__note" style="margin:0">
-            Pancake e Banana
-            <small>quem me ensinou a cuidar</small>
-          </p>
-        </div>
       </div>
 
       <!-- as três portas de entrada, sempre visíveis na dobra -->
