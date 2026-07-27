@@ -12,8 +12,8 @@ Tudo que muda está no objeto `CONFIG`, no começo do `<script>` em `index.html`
 
 | Campo | O que é | Estado |
 |---|---|---|
-| `CONFIG.whatsapp` | Número com código do país e DDD, só dígitos (ex.: `5521998877665`) | ⚠️ **placeholder** |
-| `CONFIG.whatsappDisplay` | Como o número aparece escrito na página | ⚠️ **placeholder** |
+| `CONFIG.whatsapp` | Número com código do país e DDD, só dígitos | ✅ `5521996150112` |
+| `CONFIG.whatsappDisplay` | Como o número aparece escrito no rodapé | ✅ `+55 21 99615-0112` |
 | `CONFIG.instagram` | Link do perfil | ✅ preenchido |
 | `CONFIG.services` | Nome, descrição e horários de cada serviço | ✅ preenchido |
 | `CONFIG.diasFechados` | Dias da semana sem atendimento (`0` = domingo) | ✅ domingo |
@@ -21,10 +21,12 @@ Tudo que muda está no objeto `CONFIG`, no começo do `<script>` em `index.html`
 
 Os **preços** estão como `R$ XX` no HTML, na seção *Serviços* — procure por `R$ XX`.
 
-Enquanto o WhatsApp não for configurado, a última etapa do agendamento mostra um aviso,
-copia a mensagem para a área de transferência e abre o Direct do Instagram.
-Assim que o número real entrar no `CONFIG`, o botão passa a abrir o WhatsApp
-com a mensagem já escrita — sem mais nenhuma mudança no código.
+O WhatsApp já está ligado: a última etapa do agendamento abre uma conversa com a Vica
+já com serviço, data, horário e dados do cão escritos na mensagem.
+
+Se o número for apagado ou trocado por um placeholder (qualquer coisa com `X`), a
+página detecta sozinha, mostra um aviso, copia a mensagem para a área de transferência
+e cai no Direct do Instagram em vez de gerar um link `wa.me` quebrado.
 
 ## A agenda
 

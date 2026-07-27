@@ -1074,8 +1074,8 @@ a{color:inherit}
    Substitua o número (só dígitos, com 55 + DDD) e os preços.
    ============================================================ */
 const CONFIG = {
-  whatsapp: '5521XXXXXXXXX',            // ex.: '5521998877665'
-  whatsappDisplay: '+55 21 XXXXX-XXXX',
+  whatsapp: '5521996150112',            // só dígitos: 55 + DDD + número
+  whatsappDisplay: '+55 21 99615-0112',
   instagram: 'https://www.instagram.com/paws.vica',
   bairroBase: 'Laranjeiras',
 
@@ -1200,7 +1200,18 @@ function waLink(text) {
   const num = CONFIG.whatsapp.replace(/\D/g, '');
   return 'https://wa.me/' + num + (text ? '?text=' + encodeURIComponent(text) : '');
 }
-$('#wa-footer').href = isPlaceholderPhone() ? CONFIG.instagram : waLink('Oi, Vica! Vim pelo site 🐾');
+// Com o número configurado o rodapé mostra e linka o WhatsApp real;
+// sem ele, cai no Direct do Instagram em vez de um wa.me quebrado.
+(() => {
+  const el = $('#wa-footer');
+  if (isPlaceholderPhone()) {
+    el.href = CONFIG.instagram;
+    el.textContent = 'WhatsApp';
+  } else {
+    el.href = waLink('Oi, Vica! Vim pelo site 🐾');
+    el.textContent = CONFIG.whatsappDisplay;
+  }
+})();
 
 /* ============================================================
    MODAL
