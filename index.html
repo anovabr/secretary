@@ -89,6 +89,7 @@
 
   --header-h:68px;
   --shell:1180px;
+  --dog-opacity:.12;   /* presença da marca d'água do labrador na hero */
   --ease:cubic-bezier(.22,.61,.36,1);
 }
 
@@ -208,6 +209,8 @@ a{color:inherit}
   position:relative;
   overflow:hidden; /* contém o círculo decorativo, evita scroll horizontal */
   padding-block:clamp(2rem,4.5vh,3.6rem) clamp(3rem,7vh,5rem);
+  min-height:min(92svh,860px);
+  display:flex;align-items:center;
 }
 .hero::before{
   content:"";position:absolute;z-index:-1;
@@ -215,9 +218,22 @@ a{color:inherit}
   background:radial-gradient(circle at 30% 30%, var(--pink-soft), transparent 68%);
   top:-16%;right:-14%;pointer-events:none;
 }
+.hero__dog{
+  position:absolute;z-index:0;pointer-events:none;
+  right:clamp(-30px,6vw,90px);
+  bottom:6px;
+  height:min(60%,420px);width:auto;
+  color:var(--ink);
+  opacity:var(--dog-opacity);
+}
+/* No celular os cards ocupam a dobra inteira e só sobrariam pedaços de pata —
+   melhor não desenhar do que desenhar pela metade. */
+@media (max-width:940px){ .hero__dog{display:none} }
+
 /* Duas colunas no desktop; no celular a ordem vira
    texto → cards → família, para as três opções subirem na tela. */
 .hero__grid{
+  position:relative;z-index:1;
   display:grid;
   grid-template-columns:minmax(0,1fr) minmax(0,440px);
   grid-template-areas:"copy picker";
@@ -660,6 +676,31 @@ body[data-modal="true"] .fabs{opacity:0;visibility:hidden;pointer-events:none}
 <main id="main">
   <!-- ============ HERO ============ -->
   <section class="hero" id="top">
+    <!-- Marca d'água: labrador em traço fino. Decorativa, some para leitores de tela.
+         Ajuste a presença dela em --dog-opacity, no :root. -->
+    <svg class="hero__dog" viewBox="0 0 400 560" aria-hidden="true" focusable="false">
+      <g fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M136 322 C112 372 102 430 120 462 C130 480 148 484 162 478"/>
+        <path d="M264 322 C288 372 298 430 280 462 C270 480 252 484 238 478"/>
+        <path d="M286 452 C320 454 340 430 330 402"/>
+        <path d="M172 232 C152 256 140 288 136 322"/>
+        <path d="M228 232 C248 256 260 288 264 322"/>
+        <path d="M164 318 L161 446 C153 468 158 481 178 481 C197 481 202 468 194 446 L194 318"/>
+        <path d="M206 318 L206 446 C198 468 203 481 222 481 C242 481 247 468 239 446 L236 318"/>
+        <path d="M170 466 L170 480"/><path d="M184 466 L184 480"/>
+        <path d="M214 466 L214 480"/><path d="M228 466 L228 480"/>
+        <path d="M130 140 C130 88 162 62 200 62 C238 62 270 88 270 140 C270 188 240 234 200 234 C160 234 130 188 130 140 Z"/>
+        <path d="M151 84 C117 92 98 128 103 168 C107 200 121 220 139 216"/>
+        <path d="M249 84 C283 92 302 128 297 168 C293 200 279 220 261 216"/>
+        <path d="M186 172 C186 163 214 163 214 172 C214 183 207 191 200 191 C193 191 186 183 186 172 Z" fill="currentColor"/>
+        <path d="M200 191 L200 202"/>
+        <path d="M200 202 C195 214 179 215 173 205"/>
+        <path d="M200 202 C205 214 221 215 227 205"/>
+        <path d="M169 142 C173 134 183 134 187 142"/>
+        <path d="M213 142 C217 134 227 134 231 142"/>
+      </g>
+    </svg>
+
     <div class="shell hero__grid">
 
       <div class="hero__copy">
