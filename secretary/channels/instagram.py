@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
 from typing import Any, Iterator
 
 import requests
@@ -22,6 +23,10 @@ GRAPH = "https://graph.instagram.com"
 # Container processing is async for video; these bound the wait.
 _POLL_INTERVAL_S = 5
 _POLL_TIMEOUT_S = 300
+
+# Meta only accepts a free-form reply within 24h of the person's last message.
+# We stop a little short of the edge so a slow run doesn't post into a closed window.
+REPLY_WINDOW = timedelta(hours=23, minutes=30)
 
 
 class InstagramError(RuntimeError):
@@ -67,6 +72,25 @@ class Instagram:
 
     def _get(self, path: str, **params: Any) -> dict:
         return self._request("GET", path, **params)
+
+    def _post_json(self, path: str, body: dict) -> dict:
+        """POST with a JSON body — the messaging endpoints require it."""
+        if self.dry_run:
+            print(f"  [dry-run] POST {path} {body}")
+            return {"message_id": "dry-run"}
+        response = self._session.post(
+            f"{self._base}/{path}",
+            params={"access_token": self.account.access_token},
+            json=body,
+            timeout=30,
+        )
+        payload = response.json()
+        if "error" in payload:
+            err = payload["error"]
+            raise InstagramError(
+                f"{err.get('type', 'Error')} {err.get('code', '')}: {err.get('message', payload)}".strip()
+            )
+        return payload
 
     def _post(self, path: str, **params: Any) -> dict:
         if self.dry_run:
@@ -184,3 +208,71 @@ class Instagram:
 
     def hide_comment(self, comment_id: str, hidden: bool = True) -> None:
         self._post(comment_id, hide="true" if hidden else "false")
+
+
+    # ---------- direct messages ----------
+
+    def conversations(self, limit: int = 25) -> list[dict]:
+        """Open DM threads, most recently active first."""
+        return self._get(
+            "me/conversations",
+            platform="instagram",
+            fields="id,updated_time,participants",
+            limit=limit,
+        ).get("data", [])
+
+    def messages(self, conversation_id: str, limit: int = 25) -> list[dict]:
+        """Messages in one thread, newest first."""
+        return self._get(
+            conversation_id,
+            fields=f"messages.limit({limit}){{id,created_time,from,to,message}}",
+        ).get("messages", {}).get("data", [])
+
+    def unanswered_threads(self, limit: int = 25) -> list[dict]:
+        """DM threads where the last word was theirs, not ours.
+
+        Each result carries `within_window`: False means Meta will reject a
+        free-form reply because more than 24 hours have passed. Those threads
+        still need a human, so they are returned rather than silently dropped.
+        """
+        pending = []
+        for conversation in self.conversations(limit=limit):
+            history = self.messages(conversation["id"], limit=10)
+            if not history:
+                continue
+            latest = history[0]
+            sender = latest.get("from", {})
+            if str(sender.get("id")) == str(self.account.user_id):
+                continue  # we spoke last; nothing owed
+            age = _age_of(latest.get("created_time", ""))
+            pending.append({
+                "conversation_id": conversation["id"],
+                "sender_id": sender.get("id"),
+                "sender": sender.get("username", "?"),
+                "text": latest.get("message", ""),
+                "created_time": latest.get("created_time"),
+                "within_window": age is not None and age < REPLY_WINDOW,
+                "age": age,
+            })
+        return pending
+
+    def send_message(self, recipient_id: str, text: str) -> str:
+        """Send a DM. Only valid inside the 24-hour window."""
+        result = self._post_json(
+            "me/messages",
+            {"recipient": {"id": str(recipient_id)}, "message": {"text": text}},
+        )
+        return result.get("message_id", "")
+
+
+def _age_of(created_time: str) -> timedelta | None:
+    """How long ago a message arrived, or None if the timestamp is unparseable."""
+    if not created_time:
+        return None
+    try:
+        stamp = datetime.fromisoformat(created_time.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if stamp.tzinfo is None:
+        stamp = stamp.replace(tzinfo=timezone.utc)
+    return datetime.now(timezone.utc) - stamp

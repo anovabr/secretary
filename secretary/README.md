@@ -10,7 +10,10 @@ credentials.
 ## What works today
 
 Instagram, for `anova.autismo` and `pankeka.app`: publish images, carousels and
-reels; find comments nobody has answered; reply to them; renew tokens.
+reels; find comments and direct messages nobody has answered; reply to both;
+renew tokens. Plus the daily report the run hands back.
+
+The routine itself is in [../routine.md](../routine.md).
 
 See [../docs/instagram-setup.md](../docs/instagram-setup.md) to get the tokens,
 then:
@@ -21,7 +24,9 @@ cp .env.example .env       # fill it in
 set -a; source .env; set +a
 
 python -m secretary.cli whoami
-python -m secretary.cli inbox
+python -m secretary.cli inbox        # comentários sem resposta
+python -m secretary.cli messages     # mensagens diretas sem resposta
+python -m secretary.cli report       # exemplo do relatório diário
 python -m secretary.cli post --account pankeka.app --image https://... --caption "..." --dry-run
 ```
 
@@ -34,18 +39,25 @@ trust a given account.
 python -m secretary.test_instagram
 ```
 
-Nine tests, no network — the transport is stubbed.
+24 tests, no network — the transport is stubbed. They cover the comment and
+DM filters, the 24-hour reply window, carousel limits, and that `--dry-run`
+really sends nothing.
 
 ## Layout
 
 ```
 secretary/
-  channels/instagram.py   API client: publish, read comments, reply
+  channels/instagram.py   API client: publish, comments, direct messages
   accounts.py             multi-account config from the environment
   authorize.py            one-time OAuth code -> long-lived token
   cli.py                  command line
+  report.py               the daily report
+  demo_report.py          a worked example of it
   test_instagram.py       tests
 ```
 
-Other channels become siblings of `channels/instagram.py`. Email is next and is
-unblocked; TikTok and WhatsApp wait on approvals described in the build plan.
+Other channels become siblings of `channels/instagram.py`. Next are the
+anovasaude panels (see [../docs/paineis.md](../docs/paineis.md)) and the
+`contato@anovasaude.org` mailbox — both unblocked.
+
+TikTok and WhatsApp are not part of the routine and are not being built.

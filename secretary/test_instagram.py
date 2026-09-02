@@ -6,7 +6,9 @@
 import unittest
 from unittest.mock import patch
 
-from .channels.instagram import Account, Instagram, InstagramError
+from datetime import datetime, timedelta, timezone
+
+from .channels.instagram import Account, Instagram, InstagramError, _age_of
 
 ACCOUNT = Account(handle="anova.autismo", user_id="17841400000000000", access_token="tok")
 
@@ -109,6 +111,134 @@ class TestErrors(unittest.TestCase):
         self.assertIn("Session has expired", str(ctx.exception))
         self.assertIn("OAuthException", str(ctx.exception))
 
+
+def _ago(**kw):
+    return (datetime.now(timezone.utc) - timedelta(**kw)).isoformat().replace("+00:00", "+0000")
+
+
+CONVERSATIONS = {"data": [{"id": "t1"}, {"id": "t2"}, {"id": "t3"}]}
+
+THREADS = {
+    # they wrote last, 2 hours ago -> answerable
+    "t1": [{"id": "m1", "created_time": _ago(hours=2), "message": "Qual a idade indicada?",
+            "from": {"id": "999", "username": "mae_do_pedro"}}],
+    # they wrote last, 3 days ago -> outside the window, needs a human
+    "t2": [{"id": "m2", "created_time": _ago(days=3), "message": "Vocês atendem em Niterói?",
+            "from": {"id": "888", "username": "carlos.ferreira"}}],
+    # we wrote last -> nothing owed
+    "t3": [{"id": "m3", "created_time": _ago(hours=1), "message": "Às ordens!",
+            "from": {"id": ACCOUNT.user_id, "username": "anova.autismo"}}],
+}
+
+
+class TestDirectMessages(unittest.TestCase):
+    def setUp(self):
+        self.sent = []
+        patcher = patch.object(Instagram, "_request", side_effect=self._route)
+        self.addCleanup(patcher.stop)
+        patcher.start()
+
+    def _route(self, method, path, **params):
+        if path == "me/conversations":
+            return CONVERSATIONS
+        if path in THREADS:
+            return {"messages": {"data": THREADS[path]}}
+        return {}
+
+    def test_only_threads_awaiting_us(self):
+        pending = Instagram(ACCOUNT).unanswered_threads()
+        self.assertEqual([p["conversation_id"] for p in pending], ["t1", "t2"])
+
+    def test_window_is_flagged_not_hidden(self):
+        by_id = {p["conversation_id"]: p for p in Instagram(ACCOUNT).unanswered_threads()}
+        self.assertTrue(by_id["t1"]["within_window"])
+        self.assertFalse(by_id["t2"]["within_window"])
+
+    def test_sender_is_carried_for_the_report(self):
+        pending = Instagram(ACCOUNT).unanswered_threads()
+        self.assertEqual(pending[0]["sender"], "mae_do_pedro")
+        self.assertEqual(pending[0]["text"], "Qual a idade indicada?")
+
+
+class TestSendMessage(unittest.TestCase):
+    def test_dry_run_sends_nothing(self):
+        with patch("requests.Session.post") as post:
+            Instagram(ACCOUNT, dry_run=True).send_message("999", "Olá!")
+            post.assert_not_called()
+
+    def test_body_is_json_not_query_params(self):
+        with patch("requests.Session.post") as post:
+            post.return_value.json.return_value = {"message_id": "mid.1"}
+            Instagram(ACCOUNT).send_message("999", "Bom dia!")
+        _, kwargs = post.call_args
+        self.assertEqual(kwargs["json"], {"recipient": {"id": "999"}, "message": {"text": "Bom dia!"}})
+        self.assertEqual(kwargs["params"], {"access_token": "tok"})
+
+
+class TestAgeParsing(unittest.TestCase):
+    def test_handles_z_suffix_and_offset(self):
+        for stamp in ("2026-09-01T10:00:00Z", "2026-09-01T10:00:00+0000", "2026-09-01T10:00:00+00:00"):
+            self.assertIsNotNone(_age_of(stamp), stamp)
+
+    def test_unparseable_is_none_not_a_crash(self):
+        self.assertIsNone(_age_of("last tuesday"))
+        self.assertIsNone(_age_of(""))
+
+    def test_naive_timestamp_assumed_utc(self):
+        self.assertIsNotNone(_age_of("2026-09-01T10:00:00"))
+
+
+
+
+class TestReport(unittest.TestCase):
+    def _report(self):
+        from .report import Report
+        return Report(datetime(2026, 9, 3, 7, 41))
+
+    def test_empty_report_says_so(self):
+        self.assertIn("Nada a relatar", self._report().render())
+
+    def test_singular_and_plural_agree_in_portuguese(self):
+        from .report import Report
+        r = Report(datetime(2026, 9, 3, 7, 41))
+        s = r.section("Teste")
+        r.feito(s, "uma coisa")
+        self.assertIn("1 tarefa concluída", r.render())
+        r.feito(s, "outra coisa")
+        self.assertIn("2 tarefas concluídas", r.render())
+
+    def test_attention_items_are_repeated_at_the_end(self):
+        from .report import Report
+        r = Report(datetime(2026, 9, 3, 7, 41))
+        s = r.section("Instagram")
+        r.feito(s, "publicado")
+        r.atencao(s, "mensagem fora da janela", "@alguem, há 3 dias")
+        rendered = r.render()
+        self.assertIn("PRECISAM DE VOCÊ", rendered)
+        self.assertEqual(rendered.count("mensagem fora da janela"), 2)
+        self.assertNotIn("publicado", rendered.split("PRECISAM DE VOCÊ")[1])
+
+    def test_clean_run_has_no_action_block(self):
+        from .report import Report
+        r = Report(datetime(2026, 9, 3, 7, 41))
+        s = r.section("Instagram")
+        r.feito(s, "publicado")
+        self.assertNotIn("PRECISAM DE VOCÊ", r.render())
+
+    def test_failures_also_reach_the_action_block(self):
+        from .report import Report, Status
+        r = Report(datetime(2026, 9, 3, 7, 41))
+        s = r.section("Painel")
+        r.falhou(s, "painel fora do ar", "timeout após 30s")
+        self.assertIn("PRECISAM DE VOCÊ", r.render())
+        self.assertEqual(r.counts()[Status.FALHOU], 1)
+
+    def test_weekday_and_month_are_portuguese(self):
+        self.assertIn("quinta-feira, 3 de setembro de 2026", self._report().render())
+
+    def test_demo_renders(self):
+        from .demo_report import build
+        self.assertIn("RELATÓRIO DA SECRETÁRIA", build().render())
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

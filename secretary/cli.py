@@ -51,6 +51,39 @@ def cmd_inbox(args) -> int:
     return 0
 
 
+def cmd_messages(args) -> int:
+    """Direct messages waiting on a reply, flagged by whether we may still answer."""
+    handles = [args.account] if args.account else sorted(load_accounts())
+    for handle in handles:
+        print(f"\n{handle}")
+        pending = _client(args, handle).unanswered_threads()
+        if not pending:
+            print("  caixa de entrada vazia")
+            continue
+        for t in pending:
+            if t["within_window"]:
+                mark, note = "  ", ""
+            else:
+                hours = int(t["age"].total_seconds() // 3600) if t["age"] else "?"
+                mark, note = " !", f"  (fora da janela — há {hours}h, exige resposta manual)"
+            print(f"{mark} [{t['conversation_id']}] @{t['sender']}{note}")
+            print(f"      {t['text'].strip()}")
+    return 0
+
+
+def cmd_send(args) -> int:
+    message_id = _client(args).send_message(args.to, args.message)
+    print(f"sent on {args.account}: {message_id}")
+    return 0
+
+
+def cmd_report(args) -> int:
+    from .demo_report import build
+
+    print(build().render())
+    return 0
+
+
 def cmd_post(args) -> int:
     ig = _client(args)
     if args.carousel:
@@ -118,6 +151,18 @@ def main(argv: list[str] | None = None) -> int:
     media.add_argument("--carousel", help="2-10 comma-separated image URLs")
     p_post.add_argument("--cover", help="cover image URL, reels only")
     p_post.set_defaults(func=cmd_post)
+
+    p_msgs = sub.add_parser("messages", help="direct messages awaiting a reply")
+    p_msgs.add_argument("--account")
+    p_msgs.set_defaults(func=cmd_messages)
+
+    p_send = sub.add_parser("send", help="send a direct message", parents=[common])
+    p_send.add_argument("--account", required=True)
+    p_send.add_argument("--to", required=True, help="the sender id from `messages`")
+    p_send.add_argument("--message", required=True)
+    p_send.set_defaults(func=cmd_send)
+
+    sub.add_parser("report", help="print a worked example of the daily report").set_defaults(func=cmd_report)
 
     p_reply = sub.add_parser("reply", help="reply to a comment", parents=[common])
     p_reply.add_argument("--account", required=True)
