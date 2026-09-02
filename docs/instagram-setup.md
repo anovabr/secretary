@@ -12,10 +12,19 @@ app, then add the **Instagram** product and choose the setup path for
 *Instagram API with Instagram login* (not the Facebook Login variant — that one
 needs each account tied to a Facebook Page).
 
-Note the app ID and app secret. Register your redirect URI; it must be https and
-match byte for byte what you pass later. If you have a domain pointing at the
-VPS, `https://your-vps.example.com/callback` is fine — nothing needs to be
-listening there, you are only reading the code out of the address bar.
+Note the app ID and app secret, then register a redirect URI. It must be https
+and match byte for byte what you pass later — but **nothing has to be listening
+there.** The browser lands on it with `?code=...` in the address bar and you
+copy the code out; whether the page loads or 404s is irrelevant.
+
+So you do not need a domain for the VPS yet. Use a page you already own on
+https:
+
+```
+https://anovabr.github.io/dashboard/
+```
+
+That is registered once and reused for both accounts.
 
 ## 2. Add both accounts as testers
 
@@ -47,13 +56,34 @@ python -m secretary.authorize --code AQBx... --handle anova.autismo
 It prints the two lines to paste into `.env`. Repeat for `pankeka.app`, logged
 in as that account.
 
-## 4. Verify
+## 4. Turn on message access
+
+Reading and replying to direct messages needs one switch that lives in the
+Instagram app, not in the developer dashboard. In **each** account:
+
+> Settings → Messages and story replies → Connected tools →
+> **Allow access to messages**
+
+Without it the publishing and comment endpoints work fine and the DM endpoints
+return an empty inbox — which looks like "no messages" rather than an error.
+If `messages` reports an empty inbox on an account you know has unread DMs,
+this switch is why.
+
+## 5. Verify
 
 ```bash
 python -m secretary.cli whoami
 ```
 
 Both accounts should report `MEDIA_CREATOR` or `BUSINESS` with a follower count.
+Then check the two inboxes:
+
+```bash
+python -m secretary.cli inbox      # comentários
+python -m secretary.cli messages   # mensagens diretas
+```
+
+Nothing above writes anything. The first write should be a `--dry-run`.
 
 ## Keeping the tokens alive
 
