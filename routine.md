@@ -40,6 +40,30 @@ individual — encaminhar ao link do perfil ou ao e-mail de contato.
 
 ---
 
+## Board vs. this file
+
+The dashboard's `repeat: daily` tasks are the source of truth, and there are
+only four of them:
+
+| Board task | Section |
+| :--- | :--- |
+| Post instagram | ANOVA / anova autismo |
+| Admin `https://autismo.anovasaude.org/admin.html` | ANOVA / anova autismo |
+| Admin `https://anovasaude.org/admin` | ANOVA / anova saude |
+| Pankeka Google play | others |
+
+Four things you described are **not** on the board, and one board item is not
+what you described. Until this is settled the agent follows the list above,
+because that is what is written down:
+
+- **"Pankeka Google play"**, not an Instagram post for `pankeka.app`. These are
+  different jobs — one is the Play Console, one is publishing. Which is it?
+- **Replying to Instagram messages** — described, not on the board.
+- **The hourly Instagram check** — described, not on the board.
+- **`contato@anovasaude.org`** — described, not on the board.
+- **New professionals registered** may be part of the anovasaude admin task
+  rather than a step of its own.
+
 ## Ainda não definido
 
 - Onde ficam as imagens dos posts (Instagram busca por URL pública).
