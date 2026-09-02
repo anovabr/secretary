@@ -240,5 +240,39 @@ class TestReport(unittest.TestCase):
         from .demo_report import build
         self.assertIn("RELATÓRIO DA SECRETÁRIA", build().render())
 
+
+class TestReportSections(unittest.TestCase):
+    def _r(self):
+        from .report import Report
+        return Report(datetime(2026, 9, 3, 7, 41))
+
+    def test_same_title_is_one_section(self):
+        r = self._r()
+        a = r.section("Instagram · anova.autismo")
+        b = r.section("Instagram · anova.autismo")
+        self.assertIs(a, b)
+        self.assertEqual(len(r.sections), 1)
+
+    def test_heading_appears_once_however_many_steps_write_to_it(self):
+        r = self._r()
+        for what in ("publicado", "mensagens", "comentários"):
+            r.feito(r.section("Instagram · anova.autismo"), what)
+        self.assertEqual(r.render().count("INSTAGRAM · ANOVA.AUTISMO"), 1)
+
+    def test_different_titles_stay_separate(self):
+        r = self._r()
+        r.section("Instagram · anova.autismo")
+        r.section("Instagram · pankeka.app")
+        self.assertEqual(len(r.sections), 2)
+
+    def test_action_items_name_their_account(self):
+        r = self._r()
+        for handle in ("anova.autismo", "pankeka.app"):
+            r.atencao(r.section(f"Instagram · {handle}"), "1 mensagem aguardando resposta")
+        tail = r.render().split("PRECISAM DE VOCÊ")[1]
+        self.assertIn("Instagram · anova.autismo — 1 mensagem", tail)
+        self.assertIn("Instagram · pankeka.app — 1 mensagem", tail)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -77,6 +77,22 @@ def cmd_send(args) -> int:
     return 0
 
 
+def cmd_run(args) -> int:
+    """Execute the routine and print the report."""
+    from datetime import datetime
+
+    from .report import Report
+    from .routine import daily, hourly
+    from .runner import DayState, Runner
+
+    steps = hourly() if args.hourly else daily()
+    runner = Runner(Report(datetime.now()), DayState(args.state), dry_run=args.dry_run)
+    for step in steps:
+        runner.add(step)
+    print(runner.run_all().render())
+    return 0
+
+
 def cmd_report(args) -> int:
     from .demo_report import build
 
@@ -163,6 +179,11 @@ def main(argv: list[str] | None = None) -> int:
     p_send.set_defaults(func=cmd_send)
 
     sub.add_parser("report", help="print a worked example of the daily report").set_defaults(func=cmd_report)
+
+    p_run = sub.add_parser("run", help="execute the routine and print the report", parents=[common])
+    p_run.add_argument("--hourly", action="store_true", help="the hourly check instead of the morning run")
+    p_run.add_argument("--state", default=".secretary-state.json", help="where completed steps are recorded")
+    p_run.set_defaults(func=cmd_run)
 
     p_reply = sub.add_parser("reply", help="reply to a comment", parents=[common])
     p_reply.add_argument("--account", required=True)

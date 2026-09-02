@@ -53,6 +53,15 @@ class Report:
     # ---------- collecting ----------
 
     def section(self, title: str) -> Section:
+        """Get the section with this title, creating it once.
+
+        Several steps write under one heading — posting, messages and comments
+        all belong to the same account — so asking twice must return the same
+        section rather than repeating the heading.
+        """
+        for existing in self.sections:
+            if existing.title == title:
+                return existing
         section = Section(title)
         self.sections.append(section)
         return section
@@ -87,8 +96,15 @@ class Report:
             counts[entry.status] += 1
         return counts
 
-    def needs_you(self) -> list[Entry]:
-        return [e for e in self._all if e.status in (Status.ATENCAO, Status.FALHOU)]
+    def needs_you(self) -> list[tuple[Section, Entry]]:
+        """Everything still owing a human, paired with where it came from.
+
+        The section travels with the entry because the closing block is read
+        out of context: "1 mensagem aguardando resposta" is ambiguous when two
+        accounts each have one.
+        """
+        return [(s, e) for s in self.sections for e in s.entries
+                if e.status in (Status.ATENCAO, Status.FALHOU)]
 
     # ---------- rendering ----------
 
@@ -128,8 +144,8 @@ class Report:
         pending = self.needs_you()
         if pending:
             out += ["", rule, "", "PRECISAM DE VOCÊ", ""]
-            for entry in pending:
-                out.append(f"  • {entry.what}")
+            for section, entry in pending:
+                out.append(f"  • {section.title} — {entry.what}")
                 if entry.detail:
                     out.append(f"    {entry.detail.splitlines()[0]}")
 
