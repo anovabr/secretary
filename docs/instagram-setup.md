@@ -26,6 +26,27 @@ https://anovabr.github.io/dashboard/
 
 That is registered once and reused for both accounts.
 
+### Add the publishing permission by hand
+
+The use-case setup adds three permissions on its own:
+
+```
+instagram_business_basic
+instagram_business_manage_comments
+instagram_business_manage_messages
+```
+
+`instagram_business_content_publish` is **not** among them and must be added
+from the *Permissões e recursos* page. Without it everything except publishing
+works, so the gap only shows up at the moment you try to post.
+
+### Which app ID
+
+That page shows an **Instagram app ID** and **Instagram app secret**, distinct
+from the Meta app's own pair on the main dashboard. The OAuth flow here uses
+the Instagram pair. The Meta pair fails with an error that does not explain
+itself.
+
 ## 2. Add both accounts as testers
 
 While the app is in development mode, only accounts with a role on it can
@@ -38,7 +59,18 @@ Settings → Apps and websites → Tester invites.
 This is the step that catches people out. Until the invite is accepted, the
 authorise flow fails with a permissions error that does not say why.
 
+Steps 3 and 5 of Meta's checklist do not apply to us:
+
+- **Webhooks** require a published app. We poll hourly instead, which stays
+  inside Instagram's 24-hour reply window, so there is nothing to configure.
+- **App review** is for reaching accounts that are not yours. Both accounts
+  are yours and are testers on the app, so development mode is enough.
+
 ## 3. Get a token for each account
+
+If the setup page offers *Gerar token de acesso* next to a connected account,
+use it — it returns a long-lived token directly and the rest of this section
+is unnecessary. The OAuth flow below is the fallback.
 
 ```bash
 export IG_APP_ID=... IG_APP_SECRET=... IG_REDIRECT_URI=https://your-vps.example.com/callback
