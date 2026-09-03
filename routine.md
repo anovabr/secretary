@@ -71,4 +71,6 @@ because that is what is written down:
   automação de navegador. Ver `docs/paineis.md`.
 - Provedor do e-mail `contato@anovasaude.org`.
 - Texto padrão para as dúvidas gerais.
-- Por onde chega o relatório: e-mail, WhatsApp ou arquivo no repositório.
+- Por onde chega o relatório. Hoje fica em `reports/AAAA-MM-DD.txt` no
+  servidor e o cron envia por e-mail do sistema; falta decidir se vai para
+  o e-mail de verdade ou WhatsApp.

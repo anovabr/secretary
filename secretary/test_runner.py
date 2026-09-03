@@ -280,5 +280,106 @@ class TestMediaRotation(unittest.TestCase):
         self.assertEqual(len(post_for("pankeka.app", date(2026, 9, 3), root=self.root).image_urls), 10)
 
 
+def _ago(**kw):
+    from datetime import timezone
+    return (datetime.now(timezone.utc) - timedelta(**kw)).isoformat().replace("+00:00", "+0000")
+
+
+class TestAutoReply(RunnerCase):
+    """What gets answered automatically, and what must never be."""
+
+    THREADS = {
+        "t1": {"text": "Qual a idade indicada para o teste?", "user": "mae_do_pedro", "age": {"hours": 2}},
+        "t2": {"text": "não aguento mais, penso em suicídio", "user": "anon_23", "age": {"hours": 1}},
+        "t3": {"text": "Vocês atendem em Niterói?", "user": "carlos", "age": {"days": 3}},
+    }
+
+    def setUp(self):
+        super().setUp()
+        import os
+        from unittest.mock import patch
+        os.environ.update({"IG_ACCOUNTS": "anova.autismo", "IG_ANOVA_AUTISMO_TOKEN": "t"})
+        self.sent = []
+        from .channels.instagram import Instagram
+        p1 = patch.object(Instagram, "_request", side_effect=self._route)
+        p2 = patch.object(Instagram, "send_message", side_effect=self._send)
+        for p in (p1, p2):
+            self.addCleanup(p.stop); p.start()
+
+    def _send(self, recipient_id, text):
+        self.sent.append((recipient_id, text))
+        return "mid.1"
+
+    def _route(self, method, path, **params):
+        if path == "me":
+            return {"id": "999999"}
+        if path == "me/conversations":
+            return {"data": [{"id": k} for k in self.THREADS]}
+        if path in self.THREADS:
+            t = self.THREADS[path]
+            return {"messages": {"data": [{"id": "m", "created_time": _ago(**t["age"]),
+                                           "message": t["text"],
+                                           "from": {"id": path, "username": t["user"]}}]}}
+        if path.endswith("/media"):
+            return {"data": []}
+        return {}
+
+    def _run(self, dry_run=False):
+        from .routine import instagram_messages
+        r = self._runner(dry_run=dry_run)
+        r.add(instagram_messages("anova.autismo"))
+        return r.run_all().render()
+
+    def test_an_ordinary_question_is_answered(self):
+        self._run()
+        self.assertEqual([r for r, _ in self.sent], ["t1"])
+
+    def test_a_message_about_self_harm_is_never_answered_automatically(self):
+        rendered = self._run()
+        self.assertNotIn("t2", [r for r, _ in self.sent])
+        self.assertIn("para você responder", rendered)
+        self.assertIn("anon_23", rendered)
+
+    def test_the_reply_points_at_the_screening_without_diagnosing(self):
+        self._run()
+        body = self.sent[0][1]
+        self.assertIn("link do perfil", body)
+        self.assertIn("não é diagnóstico", body)
+
+    def test_outside_the_window_is_never_even_attempted(self):
+        self._run()
+        self.assertNotIn("t3", [r for r, _ in self.sent])
+
+    def test_dry_run_sends_nothing(self):
+        # Deliberately does NOT use the send_message stub: the dry-run guard
+        # lives inside it, so stubbing it out would test the mock rather than
+        # the code. Let the real method run and watch the wire instead.
+        from unittest.mock import patch
+
+        from .channels.instagram import Instagram
+        with patch.object(Instagram, "send_message", Instagram.send_message), \
+                patch("requests.Session.post") as post:
+            self._run(dry_run=True)
+        post.assert_not_called()
+
+    def test_one_failing_send_does_not_stop_the_others(self):
+        from unittest.mock import patch
+        calls = []
+
+        def flaky(recipient_id, text):
+            calls.append(recipient_id)
+            raise RuntimeError("rate limited")
+
+        with patch("secretary.channels.instagram.Instagram.send_message", side_effect=flaky):
+            rendered = self._run()
+        self.assertIn("falhou ao enviar", rendered)
+        self.assertIn("PRECISAM DE VOCÊ", rendered)
+
+    def test_the_report_says_what_was_answered(self):
+        rendered = self._run()
+        self.assertIn("1 mensagem respondida", rendered)
+        self.assertIn("mae_do_pedro", rendered)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

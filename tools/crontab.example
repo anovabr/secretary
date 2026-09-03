@@ -1,0 +1,8 @@
+# Instale com:  crontab -e   (e cole as duas linhas abaixo)
+# O servidor já está no fuso de Brasília (-03), então estes horários são locais.
+
+# Rotina da manhã: publica o carrossel do dia, responde mensagens e comentários
+0 7 * * *   /root/anova-secretary/tools/run-secretary.sh
+
+# Verificação de hora em hora, das 8h às 22h: só mensagens e comentários
+5 8-22 * * * /root/anova-secretary/tools/run-secretary.sh --hourly
