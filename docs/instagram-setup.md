@@ -47,17 +47,28 @@ from the Meta app's own pair on the main dashboard. The OAuth flow here uses
 the Instagram pair. The Meta pair fails with an error that does not explain
 itself.
 
-## 2. Add both accounts as testers
+## 2. Verify the business first
 
-While the app is in development mode, only accounts with a role on it can
-authorise. In the app dashboard under app roles, add `anova.autismo` and
-`pankeka.app` as Instagram testers.
+An app owned by a Meta business portfolio cannot connect an Instagram account
+until that business is confirmed. Until it is, *Adicionar conta* fails with
+**"Insufficient Developer Role"** — which sounds like a permissions problem on
+your Facebook user and is not. Confirmation takes about two business days.
 
-Then accept each invitation **from inside each account**: Instagram app →
-Settings → Apps and websites → Tester invites.
+Being Administrador on the app does not substitute for it.
 
-This is the step that catches people out. Until the invite is accepted, the
-authorise flow fails with a permissions error that does not say why.
+## 3. Connect each account
+
+Ignore the **Funções** page. Its Administradores / Desenvolvedores / Testadores
+roles are Facebook app roles from the older Basic Display flow, and no Instagram
+tester invitation is involved here.
+
+Instead, on the API setup page under *Gerar tokens de acesso*, use **Adicionar
+conta**. That opens an Instagram login window; sign in as the account and
+approve. Then generate its token.
+
+**Use a private window for each account.** The login window reuses whatever
+Instagram session the browser already holds, so the second account silently
+reconnects the first unless the session is empty.
 
 Steps 3 and 5 of Meta's checklist do not apply to us:
 
@@ -66,11 +77,10 @@ Steps 3 and 5 of Meta's checklist do not apply to us:
 - **App review** is for reaching accounts that are not yours. Both accounts
   are yours and are testers on the app, so development mode is enough.
 
-## 3. Get a token for each account
+## 4. The OAuth fallback
 
-If the setup page offers *Gerar token de acesso* next to a connected account,
-use it — it returns a long-lived token directly and the rest of this section
-is unnecessary. The OAuth flow below is the fallback.
+*Adicionar conta* is the normal path and returns a long-lived token directly.
+Everything below is only needed if that button is unavailable.
 
 ```bash
 export IG_APP_ID=... IG_APP_SECRET=... IG_REDIRECT_URI=https://your-vps.example.com/callback
@@ -88,7 +98,7 @@ python -m secretary.authorize --code AQBx... --handle anova.autismo
 It prints the two lines to paste into `.env`. Repeat for `pankeka.app`, logged
 in as that account.
 
-## 4. Turn on message access
+## 5. Turn on message access
 
 Reading and replying to direct messages needs one switch that lives in the
 Instagram app, not in the developer dashboard. In **each** account:
@@ -101,7 +111,7 @@ return an empty inbox — which looks like "no messages" rather than an error.
 If `messages` reports an empty inbox on an account you know has unread DMs,
 this switch is why.
 
-## 5. Verify
+## 6. Verify
 
 ```bash
 python -m secretary.cli whoami
