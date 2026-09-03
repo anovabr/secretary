@@ -7,7 +7,7 @@ and that a dry run leaves no trace.
 import json
 import tempfile
 import unittest
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 from .report import Report, Status
@@ -156,23 +156,40 @@ class TestRoutineEndToEnd(RunnerCase):
             return {"data": []}
         return {}
 
-    def test_daily_runs_every_step_and_reports(self):
+    def _media(self, handle, folder, images=3, caption="Rotina visual"):
+        d = Path(self.tmp.name) / "media" / handle / folder
+        d.mkdir(parents=True)
+        for i in range(1, images + 1):
+            (d / f"{i}.png").write_bytes(b"x")
+        if caption:
+            (d / "caption.txt").write_text(caption, encoding="utf-8")
+        return Path(self.tmp.name) / "media"
+
+    def test_daily_publishes_the_days_folder_and_reports_it(self):
         from .routine import daily
+        root = self._media("anova.autismo", "01-rotina-visual")
         r = self._runner()
-        for step in daily(posts={"anova.autismo": {
-                "image_url": "https://cdn/x.jpg", "caption": "Rotina visual"}}):
+        for step in daily(today=date(2026, 9, 3), root=str(root)):
             r.add(step)
         rendered = r.run_all().render()
         self.assertIn("Publicação realizada", rendered)
+        self.assertIn("Carrossel, 3 imagens", rendered)
         self.assertIn("Rotina visual", rendered)
-        self.assertIn("Caixa de entrada vazia", rendered)
-        self.assertIn("ANOVA.AUTISMO", rendered)
-        self.assertIn("PANKEKA.APP", rendered)
+        self.assertIn("01-rotina-visual", rendered)
 
-    def test_no_post_queued_still_runs_the_checks(self):
+    def test_a_single_image_folder_is_not_called_a_carousel(self):
+        from .routine import daily
+        root = self._media("anova.autismo", "01-solo", images=1)
+        r = self._runner()
+        for step in daily(today=date(2026, 9, 3), root=str(root)):
+            r.add(step)
+        rendered = r.run_all().render()
+        self.assertIn("Imagem única", rendered)
+
+    def test_no_folders_prepared_still_runs_the_checks(self):
         from .routine import daily
         r = self._runner()
-        for step in daily():
+        for step in daily(today=date(2026, 9, 3), root=str(Path(self.tmp.name) / "empty")):
             r.add(step)
         rendered = r.run_all().render()
         self.assertNotIn("Publicação realizada", rendered)
@@ -182,10 +199,86 @@ class TestRoutineEndToEnd(RunnerCase):
         from .routine import hourly
         self.assertTrue(all(not s.once_per_day for s in hourly()))
 
-    def test_post_step_is_once_per_day(self):
-        from .routine import instagram_post
-        step = instagram_post("anova.autismo", image_url="https://cdn/x.jpg", caption="oi")
-        self.assertTrue(step.once_per_day)
+
+class TestMediaRotation(unittest.TestCase):
+    """One folder a day, in order, cycling round."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        for n in range(1, 4):
+            d = self.root / "anova.autismo" / f"{n:02d}-post"
+            d.mkdir(parents=True)
+            (d / "1.png").write_bytes(b"x")
+            (d / "2.png").write_bytes(b"x")
+            (d / "caption.txt").write_text(f"legenda {n}", encoding="utf-8")
+
+    def _on(self, day):
+        from .media import post_for
+        return post_for("anova.autismo", today=day, root=self.root)
+
+    def test_consecutive_days_get_consecutive_folders(self):
+        start = date(2026, 9, 3)
+        names = [self._on(start + timedelta(days=i)).name for i in range(3)]
+        self.assertEqual(len(set(names)), 3, f"expected three distinct posts, got {names}")
+
+    def test_it_cycles_rather_than_running_out(self):
+        start = date(2026, 9, 3)
+        first = self._on(start).name
+        self.assertEqual(self._on(start + timedelta(days=3)).name, first)
+
+    def test_the_same_day_always_gives_the_same_post(self):
+        day = date(2026, 9, 3)
+        self.assertEqual(self._on(day).name, self._on(day).name)
+
+    def test_caption_comes_from_the_file(self):
+        self.assertTrue(self._on(date(2026, 9, 3)).caption.startswith("legenda "))
+
+    def test_urls_are_public_and_ordered(self):
+        post = self._on(date(2026, 9, 3))
+        self.assertEqual(len(post.image_urls), 2)
+        self.assertTrue(all(u.startswith("https://") for u in post.image_urls))
+        self.assertTrue(post.image_urls[0].endswith("1.png"))
+        self.assertTrue(post.image_urls[1].endswith("2.png"))
+
+    def test_urls_describe_the_repo_not_this_disk(self):
+        # The checkout is rarely the working directory. A URL built from the
+        # local path carries "/tmp/..." into it and Instagram cannot fetch it.
+        post = self._on(date(2026, 9, 3))
+        for url in post.image_urls:
+            self.assertNotIn(str(self.root), url)
+            self.assertNotIn("/tmp/", url)
+            self.assertIn(f"/media/anova.autismo/{post.name}/", url)
+
+    def test_url_has_no_double_slashes_after_the_scheme(self):
+        for url in self._on(date(2026, 9, 3)).image_urls:
+            self.assertNotIn("//", url.split("://", 1)[1])
+
+    def test_a_folder_with_no_images_is_skipped(self):
+        (self.root / "anova.autismo" / "99-vazia").mkdir()
+        from .media import post_folders
+        self.assertNotIn("99-vazia", [f.name for f in post_folders("anova.autismo", self.root)])
+
+    def test_missing_caption_is_empty_not_an_error(self):
+        d = self.root / "pankeka.app" / "01-sem-legenda"
+        d.mkdir(parents=True)
+        (d / "1.png").write_bytes(b"x")
+        from .media import post_for
+        self.assertEqual(post_for("pankeka.app", date(2026, 9, 3), root=self.root).caption, "")
+
+    def test_account_with_no_folder_returns_nothing(self):
+        from .media import post_for
+        self.assertIsNone(post_for("nao.existe", date(2026, 9, 3), root=self.root))
+
+    def test_more_than_ten_images_is_trimmed_to_the_carousel_limit(self):
+        d = self.root / "pankeka.app" / "01-muitas"
+        d.mkdir(parents=True)
+        for i in range(1, 15):
+            (d / f"{i:02d}.png").write_bytes(b"x")
+        from .media import post_for
+        self.assertEqual(len(post_for("pankeka.app", date(2026, 9, 3), root=self.root).image_urls), 10)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

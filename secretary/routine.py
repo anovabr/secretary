@@ -12,8 +12,11 @@ change in one place once the texts are agreed.
 
 from __future__ import annotations
 
+from datetime import date
+
 from .accounts import load_accounts
 from .channels.instagram import Instagram
+from .media import Post, post_for
 from .runner import Step, StepContext
 
 
@@ -67,30 +70,38 @@ def instagram_comments(handle: str) -> Step:
     return Step(key=f"comments:{handle}", title=f"Instagram · {handle}", run=run, once_per_day=False)
 
 
-def instagram_post(handle: str, *, image_url: str, caption: str) -> Step:
-    """Publish the day's post. Only added when there is something to publish."""
+def instagram_post(handle: str, post: Post) -> Step:
+    """Publish the day's post — carousel or single image, as the folder holds."""
 
     def run(ctx: StepContext) -> None:
         ig = Instagram(load_accounts()[handle], dry_run=ctx.dry_run)
-        media_id = ig.publish_image(image_url, caption)
-        first_line = caption.strip().splitlines()[0] if caption.strip() else "(sem legenda)"
-        ctx.feito("Publicação realizada", f'"{first_line[:70]}"', f"media id {media_id}")
+        if post.is_carousel:
+            media_id = ig.publish_carousel(post.image_urls, post.caption)
+            kind = f"Carrossel, {len(post.image_urls)} imagens"
+        else:
+            media_id = ig.publish_image(post.image_urls[0], post.caption)
+            kind = "Imagem única"
+        first_line = post.caption.splitlines()[0] if post.caption else "(sem legenda)"
+        ctx.feito("Publicação realizada",
+                  f'{kind} — "{first_line[:70]}"\npasta: {post.name}',
+                  f"media id {media_id}")
 
     return Step(key=f"post:{handle}", title=f"Instagram · {handle}", run=run)
 
 
-def daily(posts: dict[str, dict] | None = None) -> list[Step]:
-    """The morning run, in the board's order.
+def daily(today: date | None = None, root: str = "media") -> list[Step]:
+    """The morning run.
 
-    `posts` maps a handle to {"image_url": ..., "caption": ...}. A handle with
-    nothing queued simply has no publishing step — the rest still runs.
+    The day's post for each account comes from media/<handle>/, one folder a
+    day in order. An account with no folders prepared simply has no publishing
+    step — its messages and comments are still handled.
     """
-    posts = posts or {}
     steps: list[Step] = []
 
     for handle in ("anova.autismo", "pankeka.app"):
-        if handle in posts:
-            steps.append(instagram_post(handle, **posts[handle]))
+        post = post_for(handle, today=today, root=root)
+        if post:
+            steps.append(instagram_post(handle, post))
         steps.append(instagram_messages(handle))
         steps.append(instagram_comments(handle))
 
