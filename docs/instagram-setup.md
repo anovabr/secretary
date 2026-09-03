@@ -28,7 +28,13 @@ That is registered once and reused for both accounts.
 
 ### Add the publishing permission by hand
 
-The use-case setup adds three permissions on its own:
+Step 1 of the API setup page lists three permissions. That list is static text,
+identical for every app — it is not a status display and never reflects what
+your app holds. The *Permissões e recursos* page is the real inventory; a
+permission there marked **Pronto para teste** is active and usable in
+development mode.
+
+The three the use case ships with are:
 
 ```
 instagram_business_basic
@@ -56,15 +62,23 @@ your Facebook user and is not. Confirmation takes about two business days.
 
 Being Administrador on the app does not substitute for it.
 
-## 3. Connect each account
+## 3. Assign the Instagram Tester role
 
-Ignore the **Funções** page. Its Administradores / Desenvolvedores / Testadores
-roles are Facebook app roles from the older Basic Display flow, and no Instagram
-tester invitation is involved here.
+The API setup page tells you to do this, and the role is real: **Funções** →
+*Adicionar pessoas* → **Testador do Instagram**, under "Funções adicionais para
+este app". Add both handles by Instagram username.
 
-Instead, on the API setup page under *Gerar tokens de acesso*, use **Adicionar
-conta**. That opens an Instagram login window; sign in as the account and
-approve. Then generate its token.
+Then accept from inside each account: instagram.com → Configurações → Apps e
+sites → Convites de testador. A pending invite behaves exactly like no invite.
+
+The other roles in that dialog — Administrador, Desenvolvedor, Testador — are
+Facebook app roles and are not what this needs.
+
+## 4. Connect each account
+
+On the API setup page under *Gerar tokens de acesso*, use **Adicionar conta**.
+That opens an Instagram login window; sign in as the account and approve. Then
+generate its token.
 
 **Use a private window for each account.** The login window reuses whatever
 Instagram session the browser already holds, so the second account silently
@@ -77,7 +91,7 @@ Steps 3 and 5 of Meta's checklist do not apply to us:
 - **App review** is for reaching accounts that are not yours. Both accounts
   are yours and are testers on the app, so development mode is enough.
 
-## 4. The OAuth fallback
+## 5. The OAuth fallback
 
 *Adicionar conta* is the normal path and returns a long-lived token directly.
 Everything below is only needed if that button is unavailable.
@@ -98,7 +112,7 @@ python -m secretary.authorize --code AQBx... --handle anova.autismo
 It prints the two lines to paste into `.env`. Repeat for `pankeka.app`, logged
 in as that account.
 
-## 5. Turn on message access
+## 6. Turn on message access
 
 Reading and replying to direct messages needs one switch that lives in the
 Instagram app, not in the developer dashboard. In **each** account:
@@ -111,7 +125,7 @@ return an empty inbox — which looks like "no messages" rather than an error.
 If `messages` reports an empty inbox on an account you know has unread DMs,
 this switch is why.
 
-## 6. Verify
+## 7. Verify
 
 ```bash
 python -m secretary.cli whoami
