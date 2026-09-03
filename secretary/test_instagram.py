@@ -12,6 +12,10 @@ from .channels.instagram import Account, Instagram, InstagramError, _age_of
 
 ACCOUNT = Account(handle="anova.autismo", user_id="17841400000000000", access_token="tok")
 
+# What /me returns — deliberately unlike the configured user_id above, as it is
+# in reality. Anything comparing against the configured id will fail these.
+API_ID = "28354976970822948"
+
 MEDIA = {
     "data": [
         {"id": "m1", "permalink": "https://instagr.am/p/1", "comments_count": 3},
@@ -45,6 +49,8 @@ class StubTransport(unittest.TestCase):
         if method == "POST":
             self.posts.append((path, {k: v for k, v in params.items() if k != "access_token"}))
             return {"id": f"new-{len(self.posts)}"}
+        if path == "me":
+            return {"id": API_ID}
         if path.endswith("/media"):
             return MEDIA
         if path.endswith("/comments"):
@@ -127,18 +133,22 @@ THREADS = {
             "from": {"id": "888", "username": "carlos.ferreira"}}],
     # we wrote last -> nothing owed
     "t3": [{"id": "m3", "created_time": _ago(hours=1), "message": "Às ordens!",
-            "from": {"id": ACCOUNT.user_id, "username": "anova.autismo"}}],
+            "from": {"id": API_ID, "username": "anova.autismo"}}],
 }
 
 
 class TestDirectMessages(unittest.TestCase):
     def setUp(self):
         self.sent = []
+        self.me_calls = 0
         patcher = patch.object(Instagram, "_request", side_effect=self._route)
         self.addCleanup(patcher.stop)
         patcher.start()
 
     def _route(self, method, path, **params):
+        if path == "me":
+            self.me_calls += 1
+            return {"id": API_ID}
         if path == "me/conversations":
             return CONVERSATIONS
         if path in THREADS:
@@ -153,6 +163,16 @@ class TestDirectMessages(unittest.TestCase):
         by_id = {p["conversation_id"]: p for p in Instagram(ACCOUNT).unanswered_threads()}
         self.assertTrue(by_id["t1"]["within_window"])
         self.assertFalse(by_id["t2"]["within_window"])
+
+    def test_our_own_messages_use_the_api_id_not_the_configured_one(self):
+        # t3 is ours. Recognising it requires /me, because the configured
+        # user_id is a different identifier space and will never match.
+        pending = Instagram(ACCOUNT).unanswered_threads()
+        self.assertNotIn("t3", [p["conversation_id"] for p in pending])
+
+    def test_me_is_resolved_once_not_per_thread(self):
+        Instagram(ACCOUNT).unanswered_threads()
+        self.assertEqual(self.me_calls, 1)
 
     def test_sender_is_carried_for_the_report(self):
         pending = Instagram(ACCOUNT).unanswered_threads()
@@ -179,6 +199,18 @@ class TestAgeParsing(unittest.TestCase):
     def test_handles_z_suffix_and_offset(self):
         for stamp in ("2026-09-01T10:00:00Z", "2026-09-01T10:00:00+0000", "2026-09-01T10:00:00+00:00"):
             self.assertIsNotNone(_age_of(stamp), stamp)
+
+    def test_colonless_offset_matches_the_colon_form(self):
+        # Instagram always sends "+0000". Before Python 3.11 that failed to
+        # parse, so every message read as ageless and the 24-hour window
+        # looked closed even for a message a minute old.
+        without = _age_of("2026-09-01T10:00:00+0000")
+        with_colon = _age_of("2026-09-01T10:00:00+00:00")
+        self.assertIsNotNone(without)
+        self.assertAlmostEqual(without.total_seconds(), with_colon.total_seconds(), places=0)
+
+    def test_negative_offset_is_normalised_too(self):
+        self.assertIsNotNone(_age_of("2026-09-01T10:00:00-0300"))
 
     def test_unparseable_is_none_not_a_crash(self):
         self.assertIsNone(_age_of("last tuesday"))

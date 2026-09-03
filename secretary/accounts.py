@@ -1,13 +1,14 @@
 """Account configuration, read from the environment.
 
-Each Instagram account contributes two variables, keyed by its handle with
-non-alphanumeric characters folded to underscores:
+Each account needs a token, keyed by its handle with non-alphanumeric
+characters folded to underscores:
 
     IG_ACCOUNTS=anova.autismo,pankeka.app
-    IG_ANOVA_AUTISMO_USER_ID=...
     IG_ANOVA_AUTISMO_TOKEN=...
-    IG_PANKEKA_APP_USER_ID=...
     IG_PANKEKA_APP_TOKEN=...
+
+A matching _USER_ID may also be set and is recorded, but nothing depends on
+it — the API is addressed as "me".
 
 Tokens are read from the process environment only, never from a file in the
 repository. On a VPS, keep them in an .env readable by the service user alone.
@@ -39,13 +40,15 @@ def load_accounts() -> dict[str, Account]:
 
     for handle in handles:
         prefix = _env_prefix(handle)
-        user_id = os.environ.get(f"{prefix}_USER_ID")
         token = os.environ.get(f"{prefix}_TOKEN")
-        if not user_id or not token:
-            missing.append(f"{prefix}_USER_ID and {prefix}_TOKEN (for {handle})")
+        if not token:
+            missing.append(f"{prefix}_TOKEN (for {handle})")
             continue
         accounts[handle] = Account(
-            handle=handle, user_id=user_id, access_token=token, api_version=api_version
+            handle=handle,
+            access_token=token,
+            api_version=api_version,
+            user_id=os.environ.get(f"{prefix}_USER_ID", ""),
         )
 
     if missing:

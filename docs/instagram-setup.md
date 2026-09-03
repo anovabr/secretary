@@ -125,6 +125,16 @@ return an empty inbox — which looks like "no messages" rather than an error.
 If `messages` reports an empty inbox on an account you know has unread DMs,
 this switch is why.
 
+### Two ids, one account
+
+The dashboard shows an id like `17841426598753387`. The API returns a longer,
+differently-scoped id for the same account. Both are real; they are not
+interchangeable, and comparing one against the other silently fails rather
+than erroring.
+
+The code sidesteps this entirely by addressing the account as `me` and asking
+the API for its own id when it needs one, so the `.env` needs only the tokens.
+
 ## 7. Verify
 
 ```bash

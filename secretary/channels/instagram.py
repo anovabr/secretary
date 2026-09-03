@@ -11,6 +11,7 @@ direct file upload.
 
 from __future__ import annotations
 
+import re
 import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
@@ -38,12 +39,16 @@ class Account:
     """One authorised Instagram account."""
 
     handle: str           # e.g. "anova.autismo" — how the daily list refers to it
-    user_id: str          # Instagram-scoped user id
     access_token: str     # long-lived token, ~60 days
     api_version: str = "v23.0"
+    # The id shown in the app dashboard. Kept only so a .env can record which
+    # account a token belongs to; the API is addressed as "me" and reports its
+    # own id, which lives in a different identifier space and is the one that
+    # matters. Nothing here depends on this value.
+    user_id: str = ""
 
     def __repr__(self) -> str:  # keep tokens out of tracebacks and logs
-        return f"Account(handle={self.handle!r}, user_id={self.user_id!r})"
+        return f"Account(handle={self.handle!r})"
 
 
 class Instagram:
@@ -52,6 +57,20 @@ class Instagram:
         self.dry_run = dry_run
         self._base = f"{GRAPH}/{account.api_version}"
         self._session = requests.Session()
+        self._me_id: str | None = None
+
+    @property
+    def me_id(self) -> str:
+        """The account's id *as this API reports it*, fetched once.
+
+        The id shown in the app dashboard (17841...) and the id the API returns
+        (a longer app-scoped one) are different identifier spaces for the same
+        account. Only the API's own id can be compared against the sender id on
+        a message, so that is the one we ask for rather than the configured one.
+        """
+        if self._me_id is None:
+            self._me_id = str(self._get("me", fields="id")["id"])
+        return self._me_id
 
     # ---------- transport ----------
 
@@ -120,7 +139,7 @@ class Instagram:
     def publish_image(self, image_url: str, caption: str = "") -> str:
         """Publish a single image. Returns the published media id."""
         container = self._post(
-            f"{self.account.user_id}/media", image_url=image_url, caption=caption
+            "me/media", image_url=image_url, caption=caption
         )["id"]
         return self._publish(container)
 
@@ -129,7 +148,7 @@ class Instagram:
         params: dict[str, Any] = {"media_type": "REELS", "video_url": video_url, "caption": caption}
         if cover_url:
             params["cover_url"] = cover_url
-        container = self._post(f"{self.account.user_id}/media", **params)["id"]
+        container = self._post("me/media", **params)["id"]
         self._await_container(container)
         return self._publish(container)
 
@@ -138,11 +157,11 @@ class Instagram:
         if not 2 <= len(image_urls) <= 10:
             raise ValueError(f"a carousel holds 2-10 images, got {len(image_urls)}")
         children = [
-            self._post(f"{self.account.user_id}/media", image_url=url, is_carousel_item="true")["id"]
+            self._post("me/media", image_url=url, is_carousel_item="true")["id"]
             for url in image_urls
         ]
         container = self._post(
-            f"{self.account.user_id}/media",
+            "me/media",
             media_type="CAROUSEL",
             children=",".join(children),
             caption=caption,
@@ -150,7 +169,7 @@ class Instagram:
         return self._publish(container)
 
     def _publish(self, container_id: str) -> str:
-        return self._post(f"{self.account.user_id}/media_publish", creation_id=container_id)["id"]
+        return self._post("me/media_publish", creation_id=container_id)["id"]
 
     def _await_container(self, container_id: str) -> None:
         """Block until a video container finishes transcoding."""
@@ -171,7 +190,7 @@ class Instagram:
 
     def recent_media(self, limit: int = 10) -> list[dict]:
         return self._get(
-            f"{self.account.user_id}/media",
+            "me/media",
             fields="id,caption,permalink,timestamp,media_type,comments_count",
             limit=limit,
         ).get("data", [])
@@ -242,7 +261,7 @@ class Instagram:
                 continue
             latest = history[0]
             sender = latest.get("from", {})
-            if str(sender.get("id")) == str(self.account.user_id):
+            if str(sender.get("id")) == self.me_id:
                 continue  # we spoke last; nothing owed
             age = _age_of(latest.get("created_time", ""))
             pending.append({
@@ -265,12 +284,20 @@ class Instagram:
         return result.get("message_id", "")
 
 
+# "+0000" -> "+00:00". datetime.fromisoformat only accepts the colon-less form
+# from Python 3.11, and Instagram always sends it that way — so on 3.10 every
+# timestamp failed to parse, every message looked ageless, and the 24-hour
+# window was reported as closed for even the freshest DM.
+_OFFSET_NO_COLON = re.compile(r"([+-]\d{2})(\d{2})$")
+
+
 def _age_of(created_time: str) -> timedelta | None:
     """How long ago a message arrived, or None if the timestamp is unparseable."""
     if not created_time:
         return None
+    normalised = _OFFSET_NO_COLON.sub(r"\1:\2", created_time.strip().replace("Z", "+00:00"))
     try:
-        stamp = datetime.fromisoformat(created_time.replace("Z", "+00:00"))
+        stamp = datetime.fromisoformat(normalised)
     except ValueError:
         return None
     if stamp.tzinfo is None:
