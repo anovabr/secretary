@@ -63,15 +63,46 @@ page is static text, identical for every app — only *Permissões e recursos* i
 real, where "Pronto para teste" means usable. And "Insufficient Developer Role"
 means the owning business is unverified, not that a role is missing.
 
+## Asked for and settled
+
+**Following accounts is not possible and must not be attempted.** The
+Instagram API has no follow endpoint — Meta excludes it deliberately to stop
+mass-following. The only route is browser automation, which breaks Instagram's
+terms and gets accounts action-blocked. If asked to follow accounts, offer a
+researched *list* for a person to follow by hand instead.
+
+**Volume: aim for tens of good posts, not thousands.** One post a day means
+sixty covers two months. The twenty existing carousels carry thirty-two
+scientific references, and that is what makes the account credible rather than
+a content mill. If asked for hundreds or thousands, say what the arithmetic
+actually is and offer twenty good ones.
+
+**Comments are reported, never answered automatically.** A public reply is
+more exposed than a DM. Do not turn on comment auto-reply without being asked
+directly.
+
+**`/novo-post`** writes a new carousel in the house style — five slides, a
+reference on every factual claim, matching caption. Use it rather than
+inventing a format.
+
 ## State
 
 Working: both accounts authenticated, 20 carousels prepared for
 `anova.autismo` with captions, auto-reply, the daily report.
 
-Open:
-- `pankeka.app` has no posts — `media/pankeka.app/` is empty
+Open, roughly in the order the owner wants them:
+
+- **More carousels for `anova.autismo`** — twenty exist; another twenty or
+  forty, written with the same citation discipline, is the ask
+- **`pankeka.app` has no posts.** `media/pankeka.app/` is empty, and nobody
+  has yet said what the app does or who it is for — ask before writing
+- Its standard DM reply is a placeholder written without knowing the product
 - The 20 captions are a first draft and want a human read
 - Report delivery: currently `reports/<date>.txt` plus whatever cron mails
-- The anovasaude admin panels — see `docs/paineis.md`; a read-only JSON
-  endpoint is much better than browser automation
-- `contato@anovasaude.org` triage is not built
+- **The anovasaude admin panels** — three of the four tasks on the owner's
+  board, and the largest remaining piece. See `docs/paineis.md`: a read-only
+  JSON endpoint beats browser automation by a wide margin, and the choice is
+  the owner's to make
+- **`contato@anovasaude.org` triage** — not built; the mail provider is still
+  unknown, which decides between an API and plain IMAP
+- Report delivery: currently a file plus whatever cron mails
