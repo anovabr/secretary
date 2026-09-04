@@ -85,6 +85,22 @@ directly.
 reference on every factual claim, matching caption. Use it rather than
 inventing a format.
 
+## The goal
+
+Every day: one or two carousels on `anova.autismo`, one post on
+`pankeka.app`, replies on both, and one report covering both accounts. Then
+the other sites hosted on this VPS.
+
+**The content arithmetic is the binding constraint.** Two carousels a day
+consumes the twenty prepared posts in ten days; with pankeka that is roughly
+ninety posts a month. Writing at that rate is what turns an account with
+thirty-two citations into a content mill, and the citations are the whole
+reason this one is worth following.
+
+So: publish one a day until a real backlog exists, and treat "two a day" as
+something to earn rather than a default. When asked for more posts, research
+properly and write few — never pad.
+
 ## State
 
 Working: both accounts authenticated, 20 carousels prepared for
@@ -92,8 +108,8 @@ Working: both accounts authenticated, 20 carousels prepared for
 
 Open, roughly in the order the owner wants them:
 
-- **More carousels for `anova.autismo`** — twenty exist; another twenty or
-  forty, written with the same citation discipline, is the ask
+- **More carousels for `anova.autismo`** — twenty exist. Next ask is about
+  ten more, researched from current literature, same citation discipline
 - **`pankeka.app` has no posts.** `media/pankeka.app/` is empty, and nobody
   has yet said what the app does or who it is for — ask before writing
 - Its standard DM reply is a placeholder written without knowing the product
@@ -105,4 +121,6 @@ Open, roughly in the order the owner wants them:
   the owner's to make
 - **`contato@anovasaude.org` triage** — not built; the mail provider is still
   unknown, which decides between an API and plain IMAP
-- Report delivery: currently a file plus whatever cron mails
+- **Report delivery by email** — wanted, not built. Currently a file in
+  `reports/` plus whatever cron mails locally. Needs an SMTP account
+- **The other sites on this VPS** — not yet looked at; ask what they are
