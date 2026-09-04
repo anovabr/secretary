@@ -25,8 +25,7 @@ CAPTION_FILE = "caption.txt"
 # nothing else has to change. Renaming the repository is the same one line.
 DEFAULT_BASE = os.environ.get(
     "IG_MEDIA_BASE",
-    "https://raw.githubusercontent.com/anovabr/secretary/"
-    "claude/instagram-account-integration-4hoqk3",
+    "https://raw.githubusercontent.com/anovabr/secretary/main",
 )
 
 
