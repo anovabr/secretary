@@ -40,37 +40,29 @@ individual — encaminhar ao link do perfil ou ao e-mail de contato.
 
 ---
 
-## Board vs. this file
+## O quadro é a rotina
 
-The dashboard's `repeat: daily` tasks are the source of truth, and there are
-only four of them:
+A lista acima é só descrição. O que roda de manhã vem da barra **Recurring**
+do quadro (anovabr.github.io/dashboard): a secretária lê o quadro, executa as
+tarefas recorrentes endereçadas a ela, na ordem do quadro, e marca cada uma
+como feita quando termina. Para mudar a rotina, mude o quadro.
 
-| Board task | Section |
+Uma tarefa recorrente é da secretária quando o texto começa com 🤖, seguido de
+um verbo que ela conhece e um alvo:
+
+| Texto no quadro | O que acontece |
 | :--- | :--- |
-| Post instagram | ANOVA / anova autismo |
-| Admin `https://autismo.anovasaude.org/admin.html` | ANOVA / anova autismo |
-| Admin `https://anovasaude.org/admin` | ANOVA / anova saude |
-| Pankeka Google play | others |
+| `🤖 Publicar @anova.autismo` | publica o post do dia de `media/anova.autismo/` |
+| `🤖 Responder @anova.autismo` | responde mensagens e comentários |
+| `🤖 Painel https://autismo.anovasaude.org/admin.html` | lê o painel (ainda não construído — fica sem marcar) |
+| `🤖 E-mail contato@anovasaude.org` | tria a caixa (ainda não construído — fica sem marcar) |
+| `Pankeka Google play` (sem 🤖) | é sua: só aparece no relatório, e é cobrada se não estiver marcada |
 
-Four things you described are **not** on the board, and one board item is not
-what you described. Until this is settled the agent follows the list above,
-because that is what is written down:
+Uma tarefa com 🤖 que ela não entende entra no relatório como "não entendi",
+não é adivinhada. A regra de repetição (daily, weekdays, weekly, monthly) e a
+ordem são as do próprio quadro. Se o quadro não puder ser lido, roda a lista
+embutida (publicar e responder nas duas contas), para que uma queda do GitHub
+não custe um post.
 
-- **"Pankeka Google play"**, not an Instagram post for `pankeka.app`. These are
-  different jobs — one is the Play Console, one is publishing. Which is it?
-- **Replying to Instagram messages** — described, not on the board.
-- **The hourly Instagram check** — described, not on the board.
-- **`contato@anovasaude.org`** — described, not on the board.
-- **New professionals registered** may be part of the anovasaude admin task
-  rather than a step of its own.
+`tools/board-setup.py` coloca a barra Recurring neste formato; é idempotente.
 
-## Ainda não definido
-
-- Onde ficam as imagens dos posts (Instagram busca por URL pública).
-- Como o agente lê os painéis — API do próprio sistema é bem melhor que
-  automação de navegador. Ver `docs/paineis.md`.
-- Provedor do e-mail `contato@anovasaude.org`.
-- Texto padrão para as dúvidas gerais.
-- Por onde chega o relatório. Hoje fica em `reports/AAAA-MM-DD.txt` no
-  servidor e o cron envia por e-mail do sistema; falta decidir se vai para
-  o e-mail de verdade ou WhatsApp.

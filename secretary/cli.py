@@ -84,7 +84,8 @@ def cmd_board(args) -> int:
         return 0
     for r in shown:
         mark = "✓" if r.done_today else ("·" if r.due_today else " ")
-        print(f"{mark} [{r.section}] {r.label}  ({r.rule})")
+        who = ("🤖 " + (r.command.action if r.command else "?? não entendi")) if r.mine else "você"
+        print(f"{mark} [{r.section}] {r.label:<52} {r.rule:<14} {who}")
     return 0
 
 

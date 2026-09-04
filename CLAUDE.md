@@ -30,7 +30,7 @@ report for a person. Widen it freely; do not narrow it without being asked.
 ## Running
 
 ```bash
-python3 -m unittest discover -s secretary -p "test_*.py" -t .   # 81 tests, no network
+python3 -m unittest discover -s secretary -p "test_*.py" -t .   # 88 tests, no network
 python3 -m secretary.cli whoami                                  # check both tokens
 ./tools/run-secretary.sh --dry-run                               # whole routine, writes nothing
 ```
@@ -41,14 +41,22 @@ the whole browser flow has to be redone by hand.
 
 ## The board is the routine
 
-anovabr.github.io/dashboard is where the routine is configured. Its
-**Recurring** sidebar (tasks with `repeat: daily/weekdays/weekly/monthly`) is
-the list the secretary follows; change it there, not here. The board saves
-an encrypted envelope to `taskboard.json` on the `state` branch of
-anovabr/dashboard; `channels/dashboard.py` fetches and decrypts it with
-`DASHBOARD_PASSWORD` from `.env`. Without that variable the board step is
-simply absent from the run. The secretary reads and reports; it never ticks
-or writes to the board.
+anovabr.github.io/dashboard is where the routine is configured; its
+**Recurring** sidebar is the list the morning run executes. Change it there,
+not in routine.py. A recurring task is the secretary's when its text starts
+with 🤖 followed by a verb it knows and a target — `🤖 Publicar @anova.autismo`,
+`🤖 Responder @conta`, `🤖 Painel <url>`, `🤖 E-mail <endereço>` — see
+routine.md for the table. Tasks without the robot are the owner's and are only
+listed. The secretary ticks what it completes (`lastDone`, the page's own
+convention) and writes back through the page's own sync: fetch, merge by task
+id and `updatedAt`, put with the file's sha. Board state: `taskboard.json` on
+the `state` branch of anovabr/dashboard, AES-256-GCM under `DASHBOARD_PASSWORD`
+(in `.env` on the VPS; the write token comes from `gh auth`). If the board is
+unreachable the built-in list runs instead. `tools/board-setup.py` puts the
+sidebar in this format and is idempotent.
+
+**The user will not edit `.env` by hand.** Secrets are pasted in chat and
+stored by Claude, never echoed.
 
 ## How it works
 

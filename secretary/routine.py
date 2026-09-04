@@ -1,8 +1,14 @@
 """Assembles the routine's steps in the order the board lists them.
 
-Only steps that can be done properly are here. The panels and the mailbox are
-absent rather than stubbed — a step that pretends to run is worse than one
-that is visibly missing.
+The morning run is built from the task board's Recurring sidebar
+(channels/dashboard.py): every recurring task due today that starts with 🤖
+becomes a step here, in board order, and is ticked on the board when it
+succeeds. Tasks without the robot are the owner's and are only listed. If
+the board cannot be read the built-in list runs instead, so a GitHub outage
+never costs a post.
+
+The panels and the mailbox are not built; a board task asking for them is
+reported as such rather than pretended.
 
 Replies are not sent automatically yet. Until the standard answers exist, the
 message and comment steps triage and report: you see who is waiting and what
@@ -12,7 +18,6 @@ change in one place once the texts are agreed.
 
 from __future__ import annotations
 
-import os
 from datetime import date
 
 from .accounts import load_accounts
@@ -112,56 +117,151 @@ def instagram_post(handle: str, post: Post) -> Step:
     return Step(key=f"post:{handle}", title=f"Instagram · {handle}", run=run)
 
 
-def board_routines() -> Step:
-    """What the task board says recurs today, and whether it is ticked.
-
-    The board is where the routine is configured; this step is how the
-    secretary reads it. It reports, it does not tick — ticking is the board
-    owner's word that the thing happened.
-    """
+def board_summary(due: list[dashboard.Routine]) -> Step:
+    """What the board says recurs today, robot and human alike, and what is ticked."""
 
     def run(ctx: StepContext) -> None:
-        state = dashboard.load_board()
-        due = [r for r in dashboard.recurring(state) if r.due_today]
         if not due:
             ctx.feito("Nenhuma rotina prevista para hoje no quadro")
             return
-        lines = []
-        for r in due:
-            mark = "✓" if r.done_today else "·"
-            lines.append(f"{mark} [{r.section}] {r.label}  ({r.rule})")
-        pending = [r for r in due if not r.done_today]
+        lines = [f"{'✓' if r.done_today else '·'} {'🤖 ' if r.mine else ''}[{r.section}] {r.label}  ({r.rule})"
+                 for r in due]
         ctx.feito(_plural(len(due), "rotina prevista para hoje", "rotinas previstas para hoje"),
                   "\n".join(lines))
-        if pending:
-            ctx.atencao(_plural(len(pending), "rotina do quadro ainda não marcada",
-                                "rotinas do quadro ainda não marcadas"),
-                        "\n".join(f"[{r.section}] {r.label}" for r in pending))
+        yours = [r for r in due if not r.mine and not r.done_today]
+        if yours:
+            ctx.atencao(_plural(len(yours), "rotina sua ainda não marcada no quadro",
+                                "rotinas suas ainda não marcadas no quadro"),
+                        "\n".join(f"[{r.section}] {r.label}" for r in yours))
 
-    return Step(key="board:routines", title="Quadro · rotinas de hoje", run=run)
+    return Step(key="board:summary", title="Quadro · rotinas de hoje", run=run, once_per_day=False)
 
 
-def daily(today: date | None = None, root: str = "media") -> list[Step]:
-    """The morning run.
+def board_unavailable(exc: Exception) -> Step:
+    def run(ctx: StepContext) -> None:
+        ctx.atencao("Quadro não lido — usando a lista embutida", str(exc))
 
-    The day's post for each account comes from media/<handle>/, one folder a
-    day in order. An account with no folders prepared simply has no publishing
-    step — its messages and comments are still handled.
-    """
+    return Step(key="board:unavailable", title="Quadro · rotinas de hoje", run=run, once_per_day=False)
+
+
+def board_not_configured() -> Step:
+    def run(ctx: StepContext) -> None:
+        ctx.atencao("Nenhuma rotina do quadro é da secretária — usando a lista embutida",
+                    "Marque as tarefas dela com 🤖 (veja routine.md), ou rode tools/board-setup.py.")
+
+    return Step(key="board:not-configured", title="Quadro · rotinas de hoje", run=run, once_per_day=False)
+
+
+def not_understood(routine: dashboard.Routine) -> Step:
+    def run(ctx: StepContext) -> None:
+        ctx.atencao("Não entendi esta rotina do quadro",
+                    f"{routine.text}\nFormato: 🤖 Publicar @conta · Responder @conta · Painel <url> · E-mail <endereço>")
+
+    return Step(key=f"board:{routine.id}", title=f"Quadro · {routine.label[:40]}", run=run, once_per_day=False)
+
+
+def not_built(routine: dashboard.Routine, what: str) -> Step:
+    def run(ctx: StepContext) -> None:
+        ctx.atencao(f"{what} ainda não está construído", f"{routine.label}\nFica no quadro sem marcar até existir.")
+
+    return Step(key=f"board:{routine.id}", title=f"Quadro · {routine.label[:40]}", run=run, once_per_day=False)
+
+
+def no_post(handle: str) -> Step:
+    def run(ctx: StepContext) -> None:
+        ctx.atencao("Sem post preparado", f"media/{handle}/ não tem pastas com imagens.")
+
+    return Step(key=f"post:{handle}", title=f"Instagram · {handle}", run=run, once_per_day=False)
+
+
+def _ticking(step: Step, routine_id: str, ticks: list[str], parts: list[int]) -> Step:
+    """Wrap a step so the routine is ticked once all its parts succeeded."""
+    inner = step.run
+
+    def run(ctx: StepContext) -> None:
+        inner(ctx)
+        parts[0] -= 1
+        if parts[0] <= 0 and routine_id not in ticks:
+            ticks.append(routine_id)
+
+    return Step(key=step.key, title=step.title, run=run, once_per_day=step.once_per_day)
+
+
+def board_tick(ticks: list[str]) -> Step:
+    """Last step: mark on the board what the run completed."""
+
+    def run(ctx: StepContext) -> None:
+        if not ticks:
+            return
+        if ctx.dry_run:
+            print(f"  [dry-run] tick on board: {ticks}")
+        else:
+            dashboard.tick(ticks)
+        ctx.feito(_plural(len(ticks), "rotina marcada no quadro", "rotinas marcadas no quadro"))
+
+    return Step(key="board:tick", title="Quadro · rotinas de hoje", run=run, once_per_day=False)
+
+
+def steps_for(routine: dashboard.Routine, ticks: list[str], today: date, root: str) -> list[Step]:
+    """The steps one robot task asks for."""
+    cmd = routine.command
+    if cmd is None:
+        return [not_understood(routine)]
+    if cmd.action == "publish":
+        handle = cmd.target
+        post = post_for(handle, today=today, root=root)
+        if post is None:
+            return [no_post(handle)]
+        return [_ticking(instagram_post(handle, post), routine.id, ticks, [1])]
+    if cmd.action == "reply":
+        handle = cmd.target
+        parts = [2]
+        return [_ticking(instagram_messages(handle), routine.id, ticks, parts),
+                _ticking(instagram_comments(handle), routine.id, ticks, parts)]
+    if cmd.action == "panel":
+        return [not_built(routine, "O leitor de painéis")]
+    if cmd.action == "mail":
+        return [not_built(routine, "A triagem de e-mail")]
+    return [not_understood(routine)]
+
+
+def from_board(state: dict, today: date | None = None, root: str = "media") -> list[Step]:
+    """The morning run as the board describes it."""
+    today = today or date.today()
+    routines = dashboard.recurring(state, today)
+    due = [r for r in routines if r.due_today]
+    if not any(r.mine for r in routines):
+        # Nothing on the board is addressed to the secretary yet: the board
+        # is not configured for it, and silence would cost the day's post.
+        return [board_summary(due), board_not_configured()] + builtin_daily(today, root)
+    ticks: list[str] = []
+    steps = [board_summary(due)]
+    for r in due:
+        if r.mine and not r.done_today:
+            steps += steps_for(r, ticks, today, root)
+    steps.append(board_tick(ticks))
+    return steps
+
+
+def builtin_daily(today: date | None = None, root: str = "media") -> list[Step]:
+    """The fallback when the board cannot be read: both accounts, post then reply."""
     steps: list[Step] = []
-
-    # The board comes first: it is the list everything below is meant to follow.
-    if os.environ.get("DASHBOARD_PASSWORD"):
-        steps.append(board_routines())
-
     for handle in ("anova.autismo", "pankeka.app"):
         post = post_for(handle, today=today, root=root)
         if post:
             steps.append(instagram_post(handle, post))
         steps.append(instagram_messages(handle))
         steps.append(instagram_comments(handle))
-
     return steps
+
+
+def daily(today: date | None = None, root: str = "media") -> list[Step]:
+    """The morning run: the board's list, or the built-in one if the board is unreachable."""
+    try:
+        state = dashboard.load_board()
+    except dashboard.DashboardError as exc:
+        return [board_unavailable(exc)] + builtin_daily(today, root)
+    return from_board(state, today, root)
 
 
 def hourly() -> list[Step]:
