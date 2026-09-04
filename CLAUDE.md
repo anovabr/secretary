@@ -108,8 +108,12 @@ Working: both accounts authenticated, 20 carousels prepared for
 
 Open, roughly in the order the owner wants them:
 
-- **More carousels for `anova.autismo`** — twenty exist. Next ask is about
-  ten more, researched from current literature, same citation discipline
+- **Render the ten new carousels.** Posts 21-30 have their text in
+  `tools/gerar_posts.py` and their `caption.txt` written, but no images: this
+  needs the Windows machine with the logos and Segoe UI. Run `gerar_posts.py`
+  there and copy `posts-imagens/post-2*` and `post-30*` into
+  `media/anova.autismo/`. Until then those folders are skipped, so nothing
+  breaks — the rotation just runs on the twenty that are ready
 - **`pankeka.app` has no posts.** `media/pankeka.app/` is empty, and nobody
   has yet said what the app does or who it is for — ask before writing
 - Its standard DM reply is a placeholder written without knowing the product
