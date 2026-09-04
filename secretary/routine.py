@@ -157,14 +157,14 @@ def not_understood(routine: dashboard.Routine) -> Step:
         ctx.atencao("Não entendi esta rotina do quadro",
                     f"{routine.text}\nFormato: 🤖 Publicar @conta · Responder @conta · Painel <url> · E-mail <endereço>")
 
-    return Step(key=f"board:{routine.id}", title=f"Quadro · {routine.label[:40]}", run=run, once_per_day=False)
+    return Step(key=f"board:{routine.id}", title="Quadro · rotinas de hoje", run=run, once_per_day=False)
 
 
 def not_built(routine: dashboard.Routine, what: str) -> Step:
     def run(ctx: StepContext) -> None:
-        ctx.atencao(f"{what} ainda não está construído", f"{routine.label}\nFica no quadro sem marcar até existir.")
+        ctx.atencao(f"{what} ainda não existe", f"{routine.label}\nFica no quadro sem marcar até existir.")
 
-    return Step(key=f"board:{routine.id}", title=f"Quadro · {routine.label[:40]}", run=run, once_per_day=False)
+    return Step(key=f"board:{routine.id}", title="Quadro · rotinas de hoje", run=run, once_per_day=False)
 
 
 def no_post(handle: str) -> Step:

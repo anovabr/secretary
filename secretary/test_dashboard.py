@@ -147,7 +147,7 @@ class TestRunFromBoard(unittest.TestCase):
         self.assertIn("6 rotinas previstas para hoje", text)
         self.assertIn("Publicação realizada", text)                     # t1
         self.assertIn("Caixa de entrada vazia", text)                   # t2
-        self.assertIn("O leitor de painéis ainda não está construído", text)  # t3
+        self.assertIn("O leitor de painéis ainda não existe", text)  # t3
         self.assertIn("Sem post preparado", text)                       # t4
         self.assertIn("Não entendi esta rotina do quadro", text)        # t5
         self.assertIn("rotina sua ainda não marcada", text)             # t6
