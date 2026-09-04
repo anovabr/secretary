@@ -30,7 +30,7 @@ report for a person. Widen it freely; do not narrow it without being asked.
 ## Running
 
 ```bash
-python3 -m unittest discover -s secretary -p "test_*.py" -t .   # 70 tests, no network
+python3 -m unittest discover -s secretary -p "test_*.py" -t .   # 81 tests, no network
 python3 -m secretary.cli whoami                                  # check both tokens
 ./tools/run-secretary.sh --dry-run                               # whole routine, writes nothing
 ```
@@ -38,6 +38,17 @@ python3 -m secretary.cli whoami                                  # check both to
 Tokens last 60 days. `python3 -m secretary.cli refresh-tokens` prints new ones
 to paste into `.env`; run it monthly, well before expiry. Once a token lapses
 the whole browser flow has to be redone by hand.
+
+## The board is the routine
+
+anovabr.github.io/dashboard is where the routine is configured. Its
+**Recurring** sidebar (tasks with `repeat: daily/weekdays/weekly/monthly`) is
+the list the secretary follows; change it there, not here. The board saves
+an encrypted envelope to `taskboard.json` on the `state` branch of
+anovabr/dashboard; `channels/dashboard.py` fetches and decrypts it with
+`DASHBOARD_PASSWORD` from `.env`. Without that variable the board step is
+simply absent from the run. The secretary reads and reports; it never ticks
+or writes to the board.
 
 ## How it works
 

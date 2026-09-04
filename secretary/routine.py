@@ -12,9 +12,11 @@ change in one place once the texts are agreed.
 
 from __future__ import annotations
 
+import os
 from datetime import date
 
 from .accounts import load_accounts
+from .channels import dashboard
 from .channels.instagram import Instagram
 from .media import Post, post_for
 from .replies import needs_a_person, standard_reply
@@ -110,6 +112,35 @@ def instagram_post(handle: str, post: Post) -> Step:
     return Step(key=f"post:{handle}", title=f"Instagram · {handle}", run=run)
 
 
+def board_routines() -> Step:
+    """What the task board says recurs today, and whether it is ticked.
+
+    The board is where the routine is configured; this step is how the
+    secretary reads it. It reports, it does not tick — ticking is the board
+    owner's word that the thing happened.
+    """
+
+    def run(ctx: StepContext) -> None:
+        state = dashboard.load_board()
+        due = [r for r in dashboard.recurring(state) if r.due_today]
+        if not due:
+            ctx.feito("Nenhuma rotina prevista para hoje no quadro")
+            return
+        lines = []
+        for r in due:
+            mark = "✓" if r.done_today else "·"
+            lines.append(f"{mark} [{r.section}] {r.label}  ({r.rule})")
+        pending = [r for r in due if not r.done_today]
+        ctx.feito(_plural(len(due), "rotina prevista para hoje", "rotinas previstas para hoje"),
+                  "\n".join(lines))
+        if pending:
+            ctx.atencao(_plural(len(pending), "rotina do quadro ainda não marcada",
+                                "rotinas do quadro ainda não marcadas"),
+                        "\n".join(f"[{r.section}] {r.label}" for r in pending))
+
+    return Step(key="board:routines", title="Quadro · rotinas de hoje", run=run)
+
+
 def daily(today: date | None = None, root: str = "media") -> list[Step]:
     """The morning run.
 
@@ -118,6 +149,10 @@ def daily(today: date | None = None, root: str = "media") -> list[Step]:
     step — its messages and comments are still handled.
     """
     steps: list[Step] = []
+
+    # The board comes first: it is the list everything below is meant to follow.
+    if os.environ.get("DASHBOARD_PASSWORD"):
+        steps.append(board_routines())
 
     for handle in ("anova.autismo", "pankeka.app"):
         post = post_for(handle, today=today, root=root)

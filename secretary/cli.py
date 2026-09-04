@@ -5,6 +5,7 @@
     python -m secretary.cli post --account pankeka.app --image https://... --caption "..."
     python -m secretary.cli reply --account anova.autismo --comment 178... --message "..."
     python -m secretary.cli refresh-tokens
+    python -m secretary.cli board            # o que o quadro diz que se repete hoje
 
 Every writing command accepts --dry-run, which prints the call it would make
 and sends nothing. Use it while the approval gate is still manual.
@@ -16,6 +17,7 @@ import argparse
 import sys
 
 from .accounts import load_account, load_accounts
+from .channels import dashboard
 from .channels.instagram import Instagram, InstagramError
 
 
@@ -68,6 +70,21 @@ def cmd_messages(args) -> int:
                 mark, note = " !", f"  (fora da janela — há {hours}h, exige resposta manual)"
             print(f"{mark} [{t['conversation_id']}] @{t['sender']}{note}")
             print(f"      {t['text'].strip()}")
+    return 0
+
+
+def cmd_board(args) -> int:
+    """The board's recurring tasks: today's by default, every one with --all."""
+    from datetime import date
+
+    routines = dashboard.recurring(dashboard.load_board(), date.today())
+    shown = routines if args.all else [r for r in routines if r.due_today]
+    if not shown:
+        print("nenhuma rotina" + ("" if args.all else " prevista para hoje"))
+        return 0
+    for r in shown:
+        mark = "✓" if r.done_today else ("·" if r.due_today else " ")
+        print(f"{mark} [{r.section}] {r.label}  ({r.rule})")
     return 0
 
 
@@ -178,6 +195,10 @@ def main(argv: list[str] | None = None) -> int:
     p_send.add_argument("--message", required=True)
     p_send.set_defaults(func=cmd_send)
 
+    p_board = sub.add_parser("board", help="recurring tasks on the dashboard, due today")
+    p_board.add_argument("--all", action="store_true", help="every recurring task, not just today's")
+    p_board.set_defaults(func=cmd_board)
+
     sub.add_parser("report", help="print a worked example of the daily report").set_defaults(func=cmd_report)
 
     p_run = sub.add_parser("run", help="execute the routine and print the report", parents=[common])
@@ -194,7 +215,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         return args.func(args)
-    except (InstagramError, RuntimeError) as exc:
+    except (InstagramError, dashboard.DashboardError, RuntimeError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
 

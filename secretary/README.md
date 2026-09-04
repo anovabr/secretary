@@ -27,6 +27,7 @@ python -m secretary.cli whoami
 python -m secretary.cli inbox        # comentários sem resposta
 python -m secretary.cli messages     # mensagens diretas sem resposta
 python -m secretary.cli report       # exemplo do relatório diário
+python -m secretary.cli board        # o que o quadro diz que se repete hoje
 python -m secretary.cli run --dry-run    # a rotina inteira, sem escrever nada
 python -m secretary.cli run --hourly     # só a verificação de hora em hora
 python -m secretary.cli post --account pankeka.app --image https://... --caption "..." --dry-run
@@ -41,7 +42,7 @@ trust a given account.
 python -m unittest discover -s secretary -p "test_*.py" -t .
 ```
 
-70 tests, no network — the transport is stubbed throughout. They cover the
+81 tests, no network — the transport is stubbed throughout. They cover the
 comment and DM filters, the 24-hour reply window, carousel limits, report
 formatting, and the runner's three promises: a failed step doesn't stop the
 run, nothing publishes twice in a day, and a dry run leaves no trace.
@@ -51,6 +52,7 @@ run, nothing publishes twice in a day, and a dry run leaves no trace.
 ```
 secretary/
   channels/instagram.py   API client: publish, comments, direct messages
+  channels/dashboard.py   reads the task board's recurring list (decrypts taskboard.json)
   accounts.py             multi-account config from the environment
   authorize.py            one-time OAuth code -> long-lived token
   cli.py                  command line
@@ -62,6 +64,7 @@ secretary/
   replies.py              the standard reply, and when not to send it
   test_instagram.py       tests
   test_runner.py          tests
+  test_dashboard.py       tests
 ```
 
 Other channels become siblings of `channels/instagram.py`. Next are the
