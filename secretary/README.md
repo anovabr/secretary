@@ -41,7 +41,7 @@ trust a given account.
 python -m unittest discover -s secretary -p "test_*.py" -t .
 ```
 
-68 tests, no network — the transport is stubbed throughout. They cover the
+70 tests, no network — the transport is stubbed throughout. They cover the
 comment and DM filters, the 24-hour reply window, carousel limits, report
 formatting, and the runner's three promises: a failed step doesn't stop the
 run, nothing publishes twice in a day, and a dry run leaves no trace.

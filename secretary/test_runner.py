@@ -150,6 +150,8 @@ class TestRoutineEndToEnd(RunnerCase):
     def _route(self, method, path, **params):
         if method == "POST":
             return {"id": "published-1"}
+        if "status_code" in params.get("fields", ""):
+            return {"status_code": "FINISHED"}  # the container has fetched its media
         if path == "me/conversations":
             return {"data": []}
         if path.endswith("/media"):

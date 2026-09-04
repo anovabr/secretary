@@ -141,6 +141,7 @@ class Instagram:
         container = self._post(
             "me/media", image_url=image_url, caption=caption
         )["id"]
+        self._await_container(container)
         return self._publish(container)
 
     def publish_reel(self, video_url: str, caption: str = "", cover_url: str | None = None) -> str:
@@ -166,13 +167,21 @@ class Instagram:
             children=",".join(children),
             caption=caption,
         )["id"]
+        self._await_container(container)
         return self._publish(container)
 
     def _publish(self, container_id: str) -> str:
         return self._post("me/media_publish", creation_id=container_id)["id"]
 
     def _await_container(self, container_id: str) -> None:
-        """Block until a video container finishes transcoding."""
+        """Block until a container is ready to publish.
+
+        Instagram fetches the media from our URL after the container is
+        created, and publishing before that finishes fails with error 9007,
+        "Media ID is not available". Images usually take seconds, video
+        minutes — the first live run lost its post to this, so every kind of
+        container waits.
+        """
         if self.dry_run:
             return
         deadline = time.monotonic() + _POLL_TIMEOUT_S

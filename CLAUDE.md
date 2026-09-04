@@ -30,7 +30,7 @@ report for a person. Widen it freely; do not narrow it without being asked.
 ## Running
 
 ```bash
-python3 -m unittest discover -s secretary -p "test_*.py" -t .   # 69 tests, no network
+python3 -m unittest discover -s secretary -p "test_*.py" -t .   # 70 tests, no network
 python3 -m secretary.cli whoami                                  # check both tokens
 ./tools/run-secretary.sh --dry-run                               # whole routine, writes nothing
 ```

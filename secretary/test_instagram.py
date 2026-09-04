@@ -76,6 +76,18 @@ class TestUnansweredComments(StubTransport):
 
 
 class TestPublishing(StubTransport):
+    def test_carousel_waits_for_container_before_publishing(self):
+        seen = []
+        def route(method, path, **params):
+            seen.append((method, path, params.get("fields")))
+            return self._route(method, path, **params)
+        with patch.object(Instagram, "_request", side_effect=route):
+            Instagram(ACCOUNT).publish_carousel(["https://cdn/a.jpg", "https://cdn/b.jpg"], "olá")
+        gets = [s for s in seen if s[0] == "GET"]
+        self.assertTrue(gets, "no status check before publish")
+        self.assertIn("status_code", gets[-1][2])
+        self.assertEqual(seen[-1][1], "me/media_publish")
+
     def test_image_creates_container_then_publishes(self):
         Instagram(ACCOUNT).publish_image("https://cdn/x.jpg", "olá")
         self.assertEqual(len(self.posts), 2)
