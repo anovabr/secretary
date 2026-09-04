@@ -251,6 +251,19 @@ class TestMediaRotation(unittest.TestCase):
             self.assertNotIn("/tmp/", url)
             self.assertIn(f"/media/anova.autismo/{post.name}/", url)
 
+    def test_the_media_host_can_be_moved_without_touching_code(self):
+        # Renaming the repo, or serving the images from anovasaude.org, should
+        # cost one environment variable rather than an edit.
+        import importlib
+        import os
+        from unittest.mock import patch
+        with patch.dict(os.environ, {"IG_MEDIA_BASE": "https://autismo.anovasaude.org/posts"}):
+            import secretary.media as media
+            importlib.reload(media)
+            url = media.post_for("anova.autismo", date(2026, 9, 3), root=self.root).image_urls[0]
+        importlib.reload(media)
+        self.assertTrue(url.startswith("https://autismo.anovasaude.org/posts/media/"))
+
     def test_url_has_no_double_slashes_after_the_scheme(self):
         for url in self._on(date(2026, 9, 3)).image_urls:
             self.assertNotIn("//", url.split("://", 1)[1])

@@ -9,6 +9,7 @@ state file being lost and never publishes twice for the same day.
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
@@ -17,9 +18,16 @@ IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png"}
 CAPTION_FILE = "caption.txt"
 
 # Instagram fetches media over HTTP, so the images must be publicly reachable.
-# Raw GitHub serves any public repository directly.
-DEFAULT_BASE = ("https://raw.githubusercontent.com/anovabr/temp/"
-                "claude/instagram-account-integration-4hoqk3")
+# Raw GitHub serves any public repository directly, which is why the media
+# stays public even when the code does not.
+#
+# Set IG_MEDIA_BASE to move the images elsewhere — your own domain, say — and
+# nothing else has to change. Renaming the repository is the same one line.
+DEFAULT_BASE = os.environ.get(
+    "IG_MEDIA_BASE",
+    "https://raw.githubusercontent.com/anovabr/secretary/"
+    "claude/instagram-account-integration-4hoqk3",
+)
 
 
 @dataclass(frozen=True)
