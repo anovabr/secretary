@@ -1,0 +1,15 @@
+# Credentials — never commit these
+.env
+*.env
+!.env.example
+
+# The daily reports quote direct messages and comments: real names, real
+# words, from people writing to an autism screening account. They stay on the
+# machine that produced them.
+reports/
+.secretary-state.json
+
+__pycache__/
+*.py[cod]
+.venv/
+venv/
