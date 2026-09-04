@@ -101,6 +101,15 @@ So: publish one a day until a real backlog exists, and treat "two a day" as
 something to earn rather than a default. When asked for more posts, research
 properly and write few — never pad.
 
+**Nothing about other accounts.** With Instagram Login there is no way to
+look up, search for, or follow another account. Business Discovery (the only
+lookup Meta offers) is Facebook-Login-only and needs `instagram_basic`,
+`instagram_manage_insights` and a Page — with these tokens every version of
+the API answers "Tried accessing nonexisting field (business_discovery)".
+Following has no API at all; automating it means unofficial clients, which
+get accounts suspended. Following is done by hand, from the app. Verified
+2026-09-03; a `lookup` command was built and reverted.
+
 ## State
 
 Working: both accounts authenticated, 20 carousels prepared for
