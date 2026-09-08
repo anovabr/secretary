@@ -138,7 +138,10 @@ class TestRunFromBoard(unittest.TestCase):
                         dry_run=dry_run)
         for step in from_board(board, MON, root=self.tmp.name):
             runner.add(step)
-        with patch.object(dashboard, "tick", side_effect=lambda ids, today=None: ticked.extend(ids)):
+        from .channels import panels
+        canned = panels.Findings(done=[("Nenhum cadastro novo", "")])
+        with patch.object(dashboard, "tick", side_effect=lambda ids, today=None: ticked.extend(ids)), \
+                patch.object(panels, "read_panel", return_value=canned):   # never the real database
             text = runner.run_all().render()
         return text, ticked
 
@@ -147,7 +150,7 @@ class TestRunFromBoard(unittest.TestCase):
         self.assertIn("6 rotinas previstas para hoje", text)
         self.assertIn("Publicação realizada", text)                     # t1
         self.assertIn("Caixa de entrada vazia", text)                   # t2
-        self.assertIn("O leitor de painéis ainda não existe", text)  # t3
+        self.assertIn("PAINEL · ANOVASAUDE.ORG", text)                 # t3
         self.assertIn("Sem post preparado", text)                       # t4
         self.assertIn("Não entendi esta rotina do quadro", text)        # t5
         self.assertIn("rotina sua ainda não marcada", text)             # t6
@@ -157,7 +160,7 @@ class TestRunFromBoard(unittest.TestCase):
         _, ticked = self._run(self.BOARD, dry_run=True)
         self.assertEqual(ticked, [])
         _, ticked = self._run(self.BOARD, dry_run=False)
-        self.assertEqual(ticked, ["t1", "t2"])
+        self.assertEqual(ticked, ["t1", "t2", "t3"])
 
     def test_already_ticked_robot_tasks_are_not_run_again(self):
         board = {"tasks": [task(id="t1", ord=1, repeat="daily", lastDone="Mon Sep 07 2026")]}

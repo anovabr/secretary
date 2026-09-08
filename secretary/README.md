@@ -42,7 +42,7 @@ trust a given account.
 python -m unittest discover -s secretary -p "test_*.py" -t .
 ```
 
-88 tests, no network — the transport is stubbed throughout. They cover the
+94 tests, no network — the transport is stubbed throughout. They cover the
 comment and DM filters, the 24-hour reply window, carousel limits, report
 formatting, and the runner's three promises: a failed step doesn't stop the
 run, nothing publishes twice in a day, and a dry run leaves no trace.
@@ -53,6 +53,7 @@ run, nothing publishes twice in a day, and a dry run leaves no trace.
 secretary/
   channels/instagram.py   API client: publish, comments, direct messages
   channels/dashboard.py   the task board: decrypts taskboard.json, parses 🤖 tasks, ticks them
+  channels/panels.py      the admin panels, read from their SQLite files by URL
   accounts.py             multi-account config from the environment
   authorize.py            one-time OAuth code -> long-lived token
   cli.py                  command line
@@ -65,10 +66,10 @@ secretary/
   test_instagram.py       tests
   test_runner.py          tests
   test_dashboard.py       tests
+  test_panels.py          tests
 ```
 
-Other channels become siblings of `channels/instagram.py`. Next are the
-anovasaude panels (see [../docs/paineis.md](../docs/paineis.md)) and the
-`contato@anovasaude.org` mailbox — both unblocked.
+Other channels become siblings of `channels/instagram.py`. Next is the
+`contato@anovasaude.org` mailbox (Titan IMAP).
 
 TikTok and WhatsApp are not part of the routine and are not being built.

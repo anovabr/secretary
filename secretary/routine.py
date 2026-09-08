@@ -21,7 +21,7 @@ from __future__ import annotations
 from datetime import date
 
 from .accounts import load_accounts
-from .channels import dashboard
+from .channels import dashboard, panels
 from .channels.instagram import Instagram
 from .media import Post, post_for
 from .replies import needs_a_person, standard_reply
@@ -155,7 +155,8 @@ def board_not_configured() -> Step:
 def not_understood(routine: dashboard.Routine) -> Step:
     def run(ctx: StepContext) -> None:
         ctx.atencao("Não entendi esta rotina do quadro",
-                    f"{routine.text}\nFormato: 🤖 Publicar @conta · Responder @conta · Painel <url> · E-mail <endereço>")
+                    f"{routine.text}\nFormato: 🤖 Publicar @conta · Responder @conta · Painel <url> · E-mail <endereço>"
+                    "\nPainéis conhecidos: " + ", ".join(sorted(panels.PANELS)))
 
     return Step(key=f"board:{routine.id}", title="Quadro · rotinas de hoje", run=run, once_per_day=False)
 
@@ -202,6 +203,20 @@ def board_tick(ticks: list[str]) -> Step:
     return Step(key="board:tick", title="Quadro · rotinas de hoje", run=run, once_per_day=False)
 
 
+def panel_step(url: str) -> Step:
+    """Read an admin panel: what is new since the last real run."""
+    panel = panels.panel_for(url)
+
+    def run(ctx: StepContext) -> None:
+        findings = panels.read_panel(url, advance=not ctx.dry_run)
+        for what, detail in findings.done:
+            ctx.feito(what, detail or None)
+        for what, detail in findings.attention:
+            ctx.atencao(what, detail or None)
+
+    return Step(key=f"panel:{panels._normalise(url)}", title=f"Painel · {panel.name}", run=run)
+
+
 def steps_for(routine: dashboard.Routine, ticks: list[str], today: date, root: str) -> list[Step]:
     """The steps one robot task asks for."""
     cmd = routine.command
@@ -219,7 +234,9 @@ def steps_for(routine: dashboard.Routine, ticks: list[str], today: date, root: s
         return [_ticking(instagram_messages(handle), routine.id, ticks, parts),
                 _ticking(instagram_comments(handle), routine.id, ticks, parts)]
     if cmd.action == "panel":
-        return [not_built(routine, "O leitor de painéis")]
+        if panels.panel_for(cmd.target) is None:
+            return [not_understood(routine)]
+        return [_ticking(panel_step(cmd.target), routine.id, ticks, [1])]
     if cmd.action == "mail":
         return [not_built(routine, "A triagem de e-mail")]
     return [not_understood(routine)]

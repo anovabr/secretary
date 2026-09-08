@@ -30,7 +30,7 @@ report for a person. Widen it freely; do not narrow it without being asked.
 ## Running
 
 ```bash
-python3 -m unittest discover -s secretary -p "test_*.py" -t .   # 88 tests, no network
+python3 -m unittest discover -s secretary -p "test_*.py" -t .   # 94 tests, no network
 python3 -m secretary.cli whoami                                  # check both tokens
 ./tools/run-secretary.sh --dry-run                               # whole routine, writes nothing
 ```
@@ -57,6 +57,19 @@ sidebar in this format and is idempotent.
 
 **The user will not edit `.env` by hand.** Secrets are pasted in chat and
 stored by Claude, never echoed.
+
+## The panels are read from their databases
+
+`🤖 Painel <url>` is served by `channels/panels.py`: one adapter per site,
+keyed by URL. Both known panels run on this VPS, so they are read straight
+from SQLite (`/opt/anovasaude/admin/anova.db`, `/opt/autismosaude/users.db`)
+in read-only mode — no login, nothing to expire. A URL with no adapter is
+reported as "não entendi" with the known list. `.secretary-panels.json`
+holds per-table watermarks so each morning reports only what is new; dry
+runs never advance it. **Those databases hold names and e-mails: tests use
+fake databases, never the real files, and the report is the only place
+their contents go.** The permission classifier blocks ad-hoc reads of them
+from a Claude session; that is fine — cron reads them.
 
 ## How it works
 

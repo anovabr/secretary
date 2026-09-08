@@ -54,7 +54,7 @@ um verbo que ela conhece e um alvo:
 | :--- | :--- |
 | `🤖 Publicar @anova.autismo` | publica o post do dia de `media/anova.autismo/` |
 | `🤖 Responder @anova.autismo` | responde mensagens e comentários |
-| `🤖 Painel https://autismo.anovasaude.org/admin.html` | lê o painel (ainda não construído — fica sem marcar) |
+| `🤖 Painel https://autismo.anovasaude.org/admin.html` | lê o painel direto do banco: cadastros, testes, pagamentos novos desde a última manhã |
 | `🤖 E-mail contato@anovasaude.org` | tria a caixa (ainda não construído — fica sem marcar) |
 | `Pankeka Google play` (sem 🤖) | é sua: só aparece no relatório, e é cobrada se não estiver marcada |
 
@@ -65,4 +65,15 @@ embutida (publicar e responder nas duas contas), para que uma queda do GitHub
 não custe um post.
 
 `tools/board-setup.py` coloca a barra Recurring neste formato; é idempotente.
+
+### Painéis
+
+`🤖 Painel <url>` só funciona para sites que a secretária aprendeu a ler —
+hoje `anovasaude.org/admin` e `autismo.anovasaude.org/admin.html`, ambos
+neste servidor, lidos direto do SQLite em modo somente leitura. Um site novo
+no quadro aparece no relatório como "não entendi", com a lista dos painéis
+conhecidos, até ganhar um leitor em `secretary/channels/panels.py`. Sites
+fora deste servidor precisam de um endpoint JSON ou de credenciais; ver
+`docs/paineis.md`. Cada manhã relata só o que é novo desde a última execução
+real (marca-d'água em `.secretary-panels.json`; o dry-run não avança).
 
