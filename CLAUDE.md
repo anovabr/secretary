@@ -30,7 +30,7 @@ report for a person. Widen it freely; do not narrow it without being asked.
 ## Running
 
 ```bash
-python3 -m unittest discover -s secretary -p "test_*.py" -t .   # 94 tests, no network
+python3 -m unittest discover -s secretary -p "test_*.py" -t .   # 96 tests, no network
 python3 -m secretary.cli whoami                                  # check both tokens
 ./tools/run-secretary.sh --dry-run                               # whole routine, writes nothing
 ```
@@ -159,7 +159,7 @@ Open, roughly in the order the owner wants them:
   has yet said what the app does or who it is for — ask before writing
 - Its standard DM reply is a placeholder written without knowing the product
 - The 20 captions are a first draft and want a human read
-- Report delivery: currently `reports/<date>.txt` plus whatever cron mails
+- Report delivery: `reports/<date>.txt`; the 07:00 run e-mails it via `secretary/deliver.py` once SMTP_PASSWORD (Titan, contato@anovasaude.org) is in .env
 - **The anovasaude admin panels** — three of the four tasks on the owner's
   board, and the largest remaining piece. See `docs/paineis.md`: a read-only
   JSON endpoint beats browser automation by a wide margin, and the choice is

@@ -27,6 +27,11 @@ REPORT="reports/$(date +%F).txt"
   python3 -m secretary.cli run "$@"
 } >> "$REPORT" 2>&1
 
-# Cron mails whatever a job prints; echoing the report here means the day's
-# work arrives without anyone having to log in to read it.
+# The morning run e-mails the report (needs SMTP_PASSWORD in .env; silent
+# without it). Hourly checks and dry runs only append to the file.
+case " $* " in
+  *" --hourly "*|*" --dry-run "*) ;;
+  *) python3 -m secretary.deliver "$REPORT" || echo "$(date -Is)  envio do relatório falhou" >> "$REPORT" ;;
+esac
+
 cat "$REPORT"
