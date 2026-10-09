@@ -23,7 +23,7 @@ from datetime import date
 from .accounts import load_accounts
 from .channels import dashboard, panels
 from .channels.instagram import Instagram
-from .media import Post, post_for
+from .media import Post, Story, post_for, record_published, story_for
 from .replies import needs_a_person, standard_reply
 from .runner import Step, StepContext
 
@@ -98,23 +98,41 @@ def instagram_comments(handle: str) -> Step:
     return Step(key=f"comments:{handle}", title=f"Instagram · {handle}", run=run, once_per_day=False)
 
 
-def instagram_post(handle: str, post: Post) -> Step:
-    """Publish the day's post — carousel or single image, as the folder holds."""
+def instagram_post(handle: str, post: Post, root: str = "media", today: date | None = None) -> Step:
+    """Publish the day's post — reel, carousel or single image, as the folder holds."""
 
     def run(ctx: StepContext) -> None:
         ig = Instagram(load_accounts()[handle], dry_run=ctx.dry_run)
-        if post.is_carousel:
+        if post.is_reel:
+            media_id = ig.publish_reel(post.video_url, post.caption, post.cover_url)
+            kind = "Reel" if post.cover_url else "Reel (capa escolhida pelo Instagram)"
+        elif post.is_carousel:
             media_id = ig.publish_carousel(post.image_urls, post.caption)
             kind = f"Carrossel, {len(post.image_urls)} imagens"
         else:
             media_id = ig.publish_image(post.image_urls[0], post.caption)
             kind = "Imagem única"
+        if not ctx.dry_run:
+            record_published(handle, post.name, today, root=root)  # a fila anda só com publicação real
         first_line = post.caption.splitlines()[0] if post.caption else "(sem legenda)"
         ctx.feito("Publicação realizada",
                   f'{kind} — "{first_line[:70]}"\npasta: {post.name}',
                   f"media id {media_id}")
 
     return Step(key=f"post:{handle}", title=f"Instagram · {handle}", run=run)
+
+
+def instagram_story(handle: str, story: Story, root: str = "media", today: date | None = None) -> Step:
+    """Publish the day's story."""
+
+    def run(ctx: StepContext) -> None:
+        ig = Instagram(load_accounts()[handle], dry_run=ctx.dry_run)
+        media_id = ig.publish_story(story.image_url)
+        if not ctx.dry_run:
+            record_published(handle, story.name, today, root=root)
+        ctx.feito("Story publicado", story.name, f"media id {media_id}")
+
+    return Step(key=f"story:{handle}", title=f"Instagram · {handle}", run=run)
 
 
 def board_summary(due: list[dashboard.Routine]) -> Step:
@@ -170,7 +188,7 @@ def not_built(routine: dashboard.Routine, what: str) -> Step:
 
 def no_post(handle: str) -> Step:
     def run(ctx: StepContext) -> None:
-        ctx.atencao("Sem post preparado", f"media/{handle}/ não tem pastas com imagens.")
+        ctx.atencao("Sem post preparado", f"media/{handle}/ não tem pastas com imagens ou vídeo.")
 
     return Step(key=f"post:{handle}", title=f"Instagram · {handle}", run=run, once_per_day=False)
 
@@ -227,7 +245,11 @@ def steps_for(routine: dashboard.Routine, ticks: list[str], today: date, root: s
         post = post_for(handle, today=today, root=root)
         if post is None:
             return [no_post(handle)]
-        return [_ticking(instagram_post(handle, post), routine.id, ticks, [1])]
+        steps = [_ticking(instagram_post(handle, post, root, today), routine.id, ticks, [1])]
+        story = story_for(handle, post, today=today, root=root)
+        if story is not None:
+            steps.append(instagram_story(handle, story, root, today))  # fora do tique: story não segura o post
+        return steps
     if cmd.action == "reply":
         handle = cmd.target
         parts = [2]
@@ -266,7 +288,10 @@ def builtin_daily(today: date | None = None, root: str = "media") -> list[Step]:
     for handle in ("anova.autismo", "pankeka.app"):
         post = post_for(handle, today=today, root=root)
         if post:
-            steps.append(instagram_post(handle, post))
+            steps.append(instagram_post(handle, post, root, today))
+        story = story_for(handle, post, today=today, root=root)
+        if story is not None:
+            steps.append(instagram_story(handle, story, root, today))
         steps.append(instagram_messages(handle))
         steps.append(instagram_comments(handle))
     return steps

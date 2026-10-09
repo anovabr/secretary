@@ -101,6 +101,37 @@ class TestPublishing(StubTransport):
         self.assertEqual(self.posts[0][1]["is_carousel_item"], "true")
         self.assertEqual(self.posts[2][1]["children"], "new-1,new-2")
 
+    def test_reel_creates_a_reels_container_then_publishes(self):
+        Instagram(ACCOUNT).publish_reel("https://cdn/r.mp4", "olá", "https://cdn/cover.jpg")
+        self.assertEqual(len(self.posts), 2)
+        self.assertEqual(self.posts[0][1], {
+            "media_type": "REELS",
+            "video_url": "https://cdn/r.mp4",
+            "caption": "olá",
+            "cover_url": "https://cdn/cover.jpg",
+        })
+        self.assertEqual(self.posts[1][1], {"creation_id": "new-1"})
+
+    def test_reel_without_a_cover_omits_the_field(self):
+        # Sending cover_url="" makes Meta reject the container rather than
+        # fall back to picking a frame itself.
+        Instagram(ACCOUNT).publish_reel("https://cdn/r.mp4", "olá")
+        self.assertNotIn("cover_url", self.posts[0][1])
+
+    def test_reel_waits_for_container_before_publishing(self):
+        # Video takes minutes to ingest, not seconds: publishing early is the
+        # one way a prepared reel gets lost.
+        seen = []
+        def route(method, path, **params):
+            seen.append((method, path, params.get("fields")))
+            return self._route(method, path, **params)
+        with patch.object(Instagram, "_request", side_effect=route):
+            Instagram(ACCOUNT).publish_reel("https://cdn/r.mp4", "olá")
+        gets = [s for s in seen if s[0] == "GET"]
+        self.assertTrue(gets, "no status check before publish")
+        self.assertIn("status_code", gets[-1][2])
+        self.assertEqual(seen[-1][1], "me/media_publish")
+
     def test_carousel_rejects_bad_counts(self):
         for urls in ([], ["https://a.jpg"], [f"https://{i}.jpg" for i in range(11)]):
             with self.assertRaises(ValueError):

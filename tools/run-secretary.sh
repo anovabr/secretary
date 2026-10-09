@@ -8,6 +8,9 @@ set -euo pipefail
 
 cd "$(dirname "$(readlink -f "$0")")/.."
 
+# New posts arrive by push; pull them before deciding what to publish.
+git pull --ff-only --quiet || echo "$(date -Is)  git pull falhou; usando o que está em disco" >&2
+
 if [ ! -f .env ]; then
   echo "$(date -Is)  .env não encontrado em $(pwd)" >&2
   exit 1

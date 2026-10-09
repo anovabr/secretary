@@ -153,6 +153,16 @@ class Instagram:
         self._await_container(container)
         return self._publish(container)
 
+    def publish_story(self, image_url: str) -> str:
+        """Publish an image as a story. Returns the published media id.
+
+        Stories take no caption, and a link sticker cannot be added through
+        the API — a button drawn into the image is decoration, not a link.
+        """
+        container = self._post("me/media", media_type="STORIES", image_url=image_url)["id"]
+        self._await_container(container)
+        return self._publish(container)
+
     def publish_carousel(self, image_urls: list[str], caption: str = "") -> str:
         """Publish 2-10 images as a carousel. Returns the published media id."""
         if not 2 <= len(image_urls) <= 10:

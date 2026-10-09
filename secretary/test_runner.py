@@ -188,6 +188,22 @@ class TestRoutineEndToEnd(RunnerCase):
         rendered = r.run_all().render()
         self.assertIn("Imagem única", rendered)
 
+    def test_daily_publishes_a_video_folder_as_a_reel(self):
+        from .routine import daily
+        d = Path(self.tmp.name) / "media" / "anova.autismo" / "01-reel-sinais"
+        d.mkdir(parents=True)
+        (d / "reel.mp4").write_bytes(b"x")
+        (d / "cover.jpg").write_bytes(b"x")
+        (d / "caption.txt").write_text("Três sinais", encoding="utf-8")
+        r = self._runner()
+        for step in daily(today=date(2026, 9, 3), root=str(Path(self.tmp.name) / "media")):
+            r.add(step)
+        rendered = r.run_all().render()
+        self.assertIn("Publicação realizada", rendered)
+        self.assertIn("Reel", rendered)
+        self.assertNotIn("Carrossel", rendered)
+        self.assertIn("01-reel-sinais", rendered)
+
     def test_no_folders_prepared_still_runs_the_checks(self):
         from .routine import daily
         r = self._runner()
@@ -203,12 +219,12 @@ class TestRoutineEndToEnd(RunnerCase):
 
 
 class TestMediaRotation(unittest.TestCase):
-    """One folder a day, in order, cycling round."""
+    """One folder a day, as a queue: new before repeated, oldest repeated first."""
 
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
-        self.root = Path(self.tmp.name)
+        self.root = Path(self.tmp.name) / "media"  # o registro fica ao lado, dentro do tmp
         for n in range(1, 4):
             d = self.root / "anova.autismo" / f"{n:02d}-post"
             d.mkdir(parents=True)
@@ -220,19 +236,64 @@ class TestMediaRotation(unittest.TestCase):
         from .media import post_for
         return post_for("anova.autismo", today=day, root=self.root)
 
-    def test_consecutive_days_get_consecutive_folders(self):
-        start = date(2026, 9, 3)
-        names = [self._on(start + timedelta(days=i)).name for i in range(3)]
-        self.assertEqual(len(set(names)), 3, f"expected three distinct posts, got {names}")
+    def _publish(self, name, day):
+        from .media import record_published
+        record_published("anova.autismo", name, day, root=self.root)
 
-    def test_it_cycles_rather_than_running_out(self):
+    def test_the_queue_moves_only_when_something_is_published(self):
         start = date(2026, 9, 3)
-        first = self._on(start).name
-        self.assertEqual(self._on(start + timedelta(days=3)).name, first)
+        self.assertEqual(self._on(start).name, "01-post")
+        self.assertEqual(self._on(start + timedelta(days=1)).name, "01-post")  # nada saiu: mesmo post
+        self._publish("01-post", start)
+        self.assertEqual(self._on(start + timedelta(days=1)).name, "02-post")
+
+    def test_nothing_repeats_while_something_new_is_waiting(self):
+        start = date(2026, 9, 3)
+        self._publish("01-post", start)
+        self._publish("03-post", start + timedelta(days=1))
+        self.assertEqual(self._on(start + timedelta(days=2)).name, "02-post")
+
+    def test_when_all_have_gone_out_the_oldest_comes_back(self):
+        start = date(2026, 9, 3)
+        for i, n in enumerate(["02-post", "01-post", "03-post"]):
+            self._publish(n, start + timedelta(days=i))
+        self.assertEqual(self._on(start + timedelta(days=3)).name, "02-post")
 
     def test_the_same_day_always_gives_the_same_post(self):
         day = date(2026, 9, 3)
-        self.assertEqual(self._on(day).name, self._on(day).name)
+        self._publish("01-post", day)
+        self.assertEqual(self._on(day).name, "01-post")  # reexecução no mesmo dia não avança
+
+    def test_a_new_folder_is_queued_without_reshuffling(self):
+        start = date(2026, 9, 3)
+        self._publish("01-post", start)
+        d = self.root / "anova.autismo" / "00-novo"
+        d.mkdir(); (d / "1.png").write_bytes(b"x")
+        self.assertEqual(self._on(start + timedelta(days=1)).name, "00-novo")
+        self._publish("00-novo", start + timedelta(days=1))
+        self.assertEqual(self._on(start + timedelta(days=2)).name, "02-post")
+
+    def test_a_reel_follows_every_two_carousels(self):
+        from .media import _queue, post_folders
+        (self.root / "anova.autismo" / "video_um.mp4").write_bytes(b"x")
+        (self.root / "anova.autismo" / "video_dois.mp4").write_bytes(b"x")
+        names = [p.name for p in _queue(post_folders("anova.autismo", self.root))]
+        self.assertEqual(names, ["01-post", "02-post", "video_dois.mp4", "03-post", "video_um.mp4"])
+
+    def test_a_waiting_reel_goes_out_after_two_carousels(self):
+        (self.root / "anova.autismo" / "video_um.mp4").write_bytes(b"x")
+        self._publish("01-post", date(2026, 9, 1))
+        self.assertEqual(self._on(date(2026, 9, 2)).name, "02-post")  # um carrossel só: ainda não
+        self._publish("02-post", date(2026, 9, 2))
+        self.assertEqual(self._on(date(2026, 9, 3)).name, "video_um")
+        self._publish("video_um", date(2026, 9, 3))
+        self.assertEqual(self._on(date(2026, 9, 4)).name, "03-post")
+
+    def test_the_log_lives_beside_media_not_in_it(self):
+        from .media import published_log
+        self._publish("01-post", date(2026, 9, 3))
+        self.assertEqual(published_log(self.root).parent, self.root.resolve().parent)
+        self.assertFalse((self.root / ".secretary-published.json").exists())
 
     def test_caption_comes_from_the_file(self):
         self.assertTrue(self._on(date(2026, 9, 3)).caption.startswith("legenda "))
@@ -293,6 +354,119 @@ class TestMediaRotation(unittest.TestCase):
             (d / f"{i:02d}.png").write_bytes(b"x")
         from .media import post_for
         self.assertEqual(len(post_for("pankeka.app", date(2026, 9, 3), root=self.root).image_urls), 10)
+
+    def _reel(self, folder="01-reel", video="reel.mp4", cover=None):
+        d = self.root / "pankeka.app" / folder
+        d.mkdir(parents=True)
+        (d / video).write_bytes(b"x")
+        if cover:
+            (d / cover).write_bytes(b"x")
+        from .media import post_for
+        return post_for("pankeka.app", date(2026, 9, 3), root=self.root)
+
+    def test_a_folder_with_a_video_is_a_reel(self):
+        post = self._reel()
+        self.assertTrue(post.is_reel)
+        self.assertFalse(post.is_carousel)
+        self.assertTrue(post.video_url.endswith("/01-reel/reel.mp4"))
+        self.assertTrue(post.video_url.startswith("https://"))
+
+    def test_a_reel_cover_is_used_when_the_folder_has_one(self):
+        self.assertTrue(self._reel(cover="cover.jpg").cover_url.endswith("/cover.jpg"))
+
+    def test_a_reel_without_a_cover_has_none(self):
+        self.assertIsNone(self._reel().cover_url)
+
+    def test_slides_beside_a_video_are_not_published_as_a_carousel(self):
+        # A reel folder that also holds stills must go out as one reel, not as
+        # a reel and a carousel of its frames.
+        post = self._reel(cover="slide-01.png")
+        self.assertTrue(post.is_reel)
+        self.assertEqual(post.image_urls, [])
+        self.assertIsNone(post.cover_url)
+
+    def test_video_can_be_served_from_its_own_host(self):
+        # raw GitHub returns application/octet-stream for .mp4 and Instagram
+        # refuses it, so video gets its own base while images keep theirs.
+        import importlib
+        import os
+        from unittest.mock import patch
+        d = self.root / "pankeka.app" / "01-reel-host"
+        d.mkdir(parents=True)
+        (d / "reel.mp4").write_bytes(b"x")
+        (d / "cover.jpg").write_bytes(b"x")
+        with patch.dict(os.environ, {"IG_VIDEO_BASE": "https://autismo.anovasaude.org"}):
+            import secretary.media as media
+            importlib.reload(media)
+            post = media.post_for("pankeka.app", date(2026, 9, 3), root=self.root)
+            video, cover = post.video_url, post.cover_url
+        importlib.reload(media)
+        self.assertTrue(video.startswith("https://autismo.anovasaude.org/media/pankeka.app/"))
+        # the cover is an image and stays wherever the images are
+        self.assertFalse(cover.startswith("https://autismo.anovasaude.org/media/"))
+
+    def test_mov_counts_as_video_too(self):
+        self.assertTrue(self._reel(video="reel.MOV").is_reel)
+
+    def _loose(self, name="Reel - Autismo - Artigo Luis.mp4", caption=None, cover=None):
+        account = self.root / "pankeka.app"
+        account.mkdir(parents=True, exist_ok=True)
+        (account / name).write_bytes(b"x")
+        stem = name.rsplit(".", 1)[0]
+        if caption:
+            (account / f"{stem}.txt").write_text(caption, encoding="utf-8")
+        if cover:
+            (account / f"{stem}{cover}").write_bytes(b"x")
+        from .media import post_for
+        return post_for("pankeka.app", date(2026, 9, 3), root=self.root)
+
+    def test_a_loose_video_file_is_a_reel(self):
+        # Reels arrive as a single file beside the post folders, not wrapped
+        # in one: that is what the editor exports.
+        post = self._loose()
+        self.assertTrue(post.is_reel)
+        self.assertEqual(post.name, "Reel - Autismo - Artigo Luis")
+
+    def test_a_loose_reel_url_is_escaped(self):
+        # "Reel - Autismo - Artigo Luis.mp4" has spaces in it. A raw space is
+        # not a URL and Instagram fetches nothing.
+        url = self._loose().video_url
+        self.assertNotIn(" ", url)
+        self.assertTrue(url.endswith("/Reel%20-%20Autismo%20-%20Artigo%20Luis.mp4"))
+
+    def test_a_loose_reel_takes_its_caption_and_cover_from_its_siblings(self):
+        post = self._loose(caption="Três sinais", cover=".jpg")
+        self.assertEqual(post.caption, "Três sinais")
+        self.assertTrue(post.cover_url.endswith(".jpg"))
+
+    def test_a_loose_reel_needs_neither_caption_nor_cover(self):
+        post = self._loose()
+        self.assertEqual(post.caption, "")
+        self.assertIsNone(post.cover_url)
+
+    def test_a_loose_image_is_not_a_post_on_its_own(self):
+        # Only video is loose. A stray .png at the account root is a mistake,
+        # not a single-image post nobody wrote a caption for.
+        (self.root / "anova.autismo" / "solta.png").write_bytes(b"x")
+        from .media import post_folders
+        self.assertNotIn("solta.png", [f.name for f in post_folders("anova.autismo", self.root)])
+
+    def test_loose_reels_and_folders_share_one_rotation(self):
+        account = self.root / "anova.autismo"
+        (account / "Reel - Camuflamento.mp4").write_bytes(b"x")
+        from .media import post_folders
+        names = [f.name for f in post_folders("anova.autismo", self.root)]
+        self.assertIn("Reel - Camuflamento.mp4", names)
+        self.assertEqual(len(names), 4)   # three folders plus the reel
+
+    def test_reels_take_their_turn_in_the_same_rotation(self):
+        # A reel is a day like any other: it earns its place by folder name,
+        # so nothing has to be scheduled separately.
+        d = self.root / "anova.autismo" / "04-reel"
+        d.mkdir(parents=True)
+        (d / "reel.mp4").write_bytes(b"x")
+        from .media import post_folders
+        self.assertIn("04-reel", [f.name for f in post_folders("anova.autismo", self.root)])
 
 
 def _ago(**kw):
@@ -398,3 +572,75 @@ class TestAutoReply(RunnerCase):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
+
+class TestStories(unittest.TestCase):
+    """One story a day: the one announcing today's post, or the next of the rest."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name) / "media"
+        acc = self.root / "anova.autismo"
+        for name in ("post-01-sinais", "post-02-mascaramento"):
+            (acc / name).mkdir(parents=True)
+            (acc / name / "slide-01.png").write_bytes(b"x")
+            (acc / name / "slide-02.png").write_bytes(b"x")
+        for name in ("story-01-teste-adulto", "story-02-teste-infantil", "story-03-artigo-mascaramento"):
+            (acc / f"{name}.png").write_bytes(b"x")
+
+    def _story(self, post_name, day=date(2026, 9, 3)):
+        from .media import load_post, story_for
+        post = load_post(self.root / "anova.autismo" / post_name, "anova.autismo")
+        return story_for("anova.autismo", post, today=day, root=self.root)
+
+    def test_stories_are_not_posts(self):
+        from .media import post_folders
+        self.assertEqual([f.name for f in post_folders("anova.autismo", self.root)],
+                         ["post-01-sinais", "post-02-mascaramento"])
+
+    def test_a_story_announcing_a_post_goes_out_with_it(self):
+        self.assertEqual(self._story("post-02-mascaramento").name, "story-03-artigo-mascaramento")
+
+    def test_on_other_days_the_free_stories_take_turns(self):
+        from .media import record_published
+        self.assertEqual(self._story("post-01-sinais").name, "story-01-teste-adulto")
+        record_published("anova.autismo", "story-01-teste-adulto", date(2026, 9, 3), root=self.root)
+        self.assertEqual(self._story("post-01-sinais", date(2026, 9, 4)).name, "story-02-teste-infantil")
+        record_published("anova.autismo", "story-02-teste-infantil", date(2026, 9, 4), root=self.root)
+        self.assertEqual(self._story("post-01-sinais", date(2026, 9, 5)).name, "story-01-teste-adulto")
+
+    def test_story_urls_are_escaped_and_public(self):
+        self.assertTrue(self._story("post-01-sinais").image_url.startswith("https://"))
+
+
+class TestQueueRecording(TestRoutineEndToEnd):
+    """Only a real publication moves the queue."""
+
+    def _story_media(self):
+        root = self._media("anova.autismo", "01-rotina-visual")
+        self._media("anova.autismo", "02-sinais")
+        (root / "anova.autismo" / "story-01-teste.png").write_bytes(b"x")
+        return root
+
+    def test_a_live_run_records_the_post_and_the_story(self):
+        from .media import published_log
+        from .routine import daily
+        root = self._story_media()
+        r = self._runner()
+        for step in daily(today=date(2026, 9, 3), root=str(root)):
+            r.add(step)
+        rendered = r.run_all().render()
+        self.assertIn("Story publicado", rendered)
+        logged = json.loads(published_log(root).read_text())["anova.autismo"]
+        self.assertEqual(logged, {"01-rotina-visual": "2026-09-03", "story-01-teste": "2026-09-03"})
+
+    def test_a_dry_run_records_nothing(self):
+        from .media import published_log
+        from .routine import daily
+        root = self._story_media()
+        r = self._runner(dry_run=True)
+        for step in daily(today=date(2026, 9, 3), root=str(root)):
+            r.add(step)
+        r.run_all()
+        self.assertFalse(published_log(root).exists())

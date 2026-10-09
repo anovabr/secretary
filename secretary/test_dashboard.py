@@ -102,7 +102,7 @@ class TestRunFromBoard(unittest.TestCase):
 
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory(); self.addCleanup(self.tmp.cleanup)
-        d = Path(self.tmp.name) / "anova.autismo" / "post-01"; d.mkdir(parents=True)
+        d = Path(self.tmp.name) / "media" / "anova.autismo" / "post-01"; d.mkdir(parents=True)
         (d / "1.png").write_bytes(b"x"); (d / "2.png").write_bytes(b"x")
         os.environ.update({"IG_ACCOUNTS": "anova.autismo,pankeka.app",
                            "IG_ANOVA_AUTISMO_TOKEN": "t", "IG_PANKEKA_APP_TOKEN": "t"})
@@ -136,7 +136,7 @@ class TestRunFromBoard(unittest.TestCase):
         ticked = []
         runner = Runner(Report(datetime(2026, 9, 7, 7, 0)), DayState(Path(self.tmp.name) / "state.json", today=MON),
                         dry_run=dry_run)
-        for step in from_board(board, MON, root=self.tmp.name):
+        for step in from_board(board, MON, root=str(Path(self.tmp.name) / "media")):
             runner.add(step)
         from .channels import panels
         canned = panels.Findings(done=[("Nenhum cadastro novo", "")])
@@ -179,7 +179,7 @@ class TestRunFromBoard(unittest.TestCase):
     def test_unreadable_board_falls_back_to_the_builtin_list(self):
         from .routine import daily
         with patch.object(dashboard, "load_board", side_effect=dashboard.DashboardError("HTTP 500")):
-            keys = [s.key for s in daily(MON, root=self.tmp.name)]
+            keys = [s.key for s in daily(MON, root=str(Path(self.tmp.name) / "media"))]
         self.assertEqual(keys[0], "board:unavailable")
         self.assertIn("post:anova.autismo", keys)
         self.assertIn("messages:pankeka.app", keys)

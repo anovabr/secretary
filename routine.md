@@ -11,7 +11,9 @@ individual — encaminhar ao link do perfil ou ao e-mail de contato.
 ## Diária — 07:00
 
 1. **Instagram `anova.autismo` — publicar**
-   Post do dia. Media must be a public https URL.
+   Post do dia. Media must be a public https URL. Uma pasta com vídeo sai como
+   reel; uma pasta com imagens sai como carrossel. É a pasta que decide, não o
+   quadro — para começar reels, basta copiar a pasta com o `.mp4` dentro.
 
 2. **Instagram `anova.autismo` — responder mensagens**
    Answer what can be answered simply. Anything outside the 24-hour window,
@@ -52,7 +54,7 @@ um verbo que ela conhece e um alvo:
 
 | Texto no quadro | O que acontece |
 | :--- | :--- |
-| `🤖 Publicar @anova.autismo` | publica o post do dia de `media/anova.autismo/` |
+| `🤖 Publicar @anova.autismo` | publica o post do dia de `media/anova.autismo/` — carrossel, imagem única ou **reel**, conforme os arquivos da pasta |
 | `🤖 Responder @anova.autismo` | responde mensagens e comentários |
 | `🤖 Painel https://autismo.anovasaude.org/admin.html` | lê o painel direto do banco: cadastros, testes, pagamentos novos desde a última manhã |
 | `🤖 E-mail contato@anovasaude.org` | tria a caixa (ainda não construído — fica sem marcar) |

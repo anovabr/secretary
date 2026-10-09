@@ -30,7 +30,7 @@ report for a person. Widen it freely; do not narrow it without being asked.
 ## Running
 
 ```bash
-python3 -m unittest discover -s secretary -p "test_*.py" -t .   # 96 tests, no network
+python3 -m unittest discover -s secretary -p "test_*.py" -t .   # 129 tests, no network
 python3 -m secretary.cli whoami                                  # check both tokens
 ./tools/run-secretary.sh --dry-run                               # whole routine, writes nothing
 ```
@@ -76,7 +76,7 @@ from a Claude session; that is fine — cron reads them.
 `runner.py` executes steps in order and makes three promises the tests hold it
 to: a failed step never stops the run, nothing publishes twice in a day, and a
 dry run leaves no trace. `routine.py` assembles the steps, `media.py` picks the
-day's folder (one per day, cycling), `report.py` builds the Portuguese report.
+day's entry (a queue: new before repeated, a reel after every two carousels, logged in `.secretary-published.json`) and the day's story, `report.py` builds the Portuguese report.
 
 ## Things that cost hours to learn
 
@@ -113,6 +113,23 @@ actually is and offer twenty good ones.
 more exposed than a DM. Do not turn on comment auto-reply without being asked
 directly.
 
+**Reels are files, not a new pipeline.** A `.mp4` or `.mov` under
+`media/<conta>/` publishes as a reel from the same queue — loose,
+named as the editor exported it, with an optional `.txt` caption and `.jpg`
+cover sharing its name. A folder of images is still a carousel. The files
+decide, so adding reels is copying them in — no board change, no new verb, no
+second queue. URLs are percent-encoded because the exported names have
+spaces in them. Video comes from GitHub like the images; the three reels of
+27–29 September proved it works, so `IG_VIDEO_BASE` is only an escape hatch.
+
+**Stories are loose `story-NN-slug.png` files**, one a day with the post. One
+ending in a post's slug goes out with that post only; the rest take turns. The
+API cannot add a link sticker — buttons drawn into a story do nothing.
+
+**The owner makes the slides and videos.** New material arrives as finished
+folders; Claude checks them (claims, addresses, captions) and does not render
+or redesign them.
+
 **`/novo-post`** writes a new carousel in the house style — five slides, a
 reference on every factual claim, matching caption. Use it rather than
 inventing a format.
@@ -144,17 +161,16 @@ get accounts suspended. Following is done by hand, from the app. Verified
 
 ## State
 
-Working: both accounts authenticated, 20 carousels prepared for
-`anova.autismo` with captions, auto-reply, the daily report.
+Working: both accounts authenticated, 30 carousels prepared and rendered for
+`anova.autismo` with captions, auto-reply, the daily report. Posts 36–54 (by
+the owner), two more reels and three stories joined the queue on 2026-10-09;
+reels and stories publish from GitHub.
 
 Open, roughly in the order the owner wants them:
 
-- **Render the ten new carousels.** Posts 21-30 have their text in
-  `tools/gerar_posts.py` and their `caption.txt` written, but no images: this
-  needs the Windows machine with the logos and Segoe UI. Run `gerar_posts.py`
-  there and copy `posts-imagens/post-2*` and `post-30*` into
-  `media/anova.autismo/`. Until then those folders are skipped, so nothing
-  breaks — the rotation just runs on the twenty that are ready
+- **post-35 waits in `entrada/`**: slides 2 and 4 still hold the editor's
+  empty photo boxes ("Solte uma foto aqui"). Move it into `media/` once fixed
+- `video_prevalencia.mp4` was in the owner's folder but never uploaded
 - **`pankeka.app` has no posts.** `media/pankeka.app/` is empty, and nobody
   has yet said what the app does or who it is for — ask before writing
 - Its standard DM reply is a placeholder written without knowing the product
