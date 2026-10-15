@@ -132,6 +132,31 @@ class TestPublishing(StubTransport):
         self.assertIn("status_code", gets[-1][2])
         self.assertEqual(seen[-1][1], "me/media_publish")
 
+    def test_publish_retries_media_not_available(self):
+        # 9007 can follow a FINISHED status; the 2026-10-15 story was lost to it.
+        refusals = [1, 1]
+        def route(method, path, **params):
+            if path == "me/media_publish" and refusals:
+                refusals.pop()
+                raise InstagramError("OAuthException 9007: Media ID is not available")
+            return self._route(method, path, **params)
+        with patch.object(Instagram, "_request", side_effect=route), \
+                patch("secretary.channels.instagram.time.sleep"):
+            media_id = Instagram(ACCOUNT).publish_story("https://cdn/s.png")
+        self.assertEqual(refusals, [])
+        self.assertEqual(media_id, "new-2")
+
+    def test_publish_does_not_retry_other_errors(self):
+        def route(method, path, **params):
+            if path == "me/media_publish":
+                raise InstagramError("OAuthException 190: token expired")
+            return self._route(method, path, **params)
+        with patch.object(Instagram, "_request", side_effect=route), \
+                patch("secretary.channels.instagram.time.sleep") as sleep:
+            with self.assertRaises(InstagramError):
+                Instagram(ACCOUNT).publish_story("https://cdn/s.png")
+        sleep.assert_not_called()
+
     def test_carousel_rejects_bad_counts(self):
         for urls in ([], ["https://a.jpg"], [f"https://{i}.jpg" for i in range(11)]):
             with self.assertRaises(ValueError):

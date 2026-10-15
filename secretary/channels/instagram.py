@@ -25,6 +25,13 @@ GRAPH = "https://graph.instagram.com"
 _POLL_INTERVAL_S = 5
 _POLL_TIMEOUT_S = 300
 
+# A container reported FINISHED can still be refused at publish with 9007 for
+# a while — the story of 2026-10-15 was lost to it. Publishing a container is
+# idempotent on Meta's side (a second publish of the same id is an error, not
+# a duplicate), so retrying is safe.
+_PUBLISH_RETRIES = 6
+_PUBLISH_RETRY_S = 20
+
 # Meta only accepts a free-form reply within 24h of the person's last message.
 # We stop a little short of the edge so a slow run doesn't post into a closed window.
 REPLY_WINDOW = timedelta(hours=23, minutes=30)
@@ -181,7 +188,14 @@ class Instagram:
         return self._publish(container)
 
     def _publish(self, container_id: str) -> str:
-        return self._post("me/media_publish", creation_id=container_id)["id"]
+        for attempt in range(_PUBLISH_RETRIES):
+            try:
+                return self._post("me/media_publish", creation_id=container_id)["id"]
+            except InstagramError as exc:
+                if " 9007:" not in str(exc) or attempt == _PUBLISH_RETRIES - 1:
+                    raise
+                time.sleep(_PUBLISH_RETRY_S)
+        raise AssertionError("unreachable")
 
     def _await_container(self, container_id: str) -> None:
         """Block until a container is ready to publish.

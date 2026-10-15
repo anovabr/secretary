@@ -30,7 +30,7 @@ report for a person. Widen it freely; do not narrow it without being asked.
 ## Running
 
 ```bash
-python3 -m unittest discover -s secretary -p "test_*.py" -t .   # 129 tests, no network
+python3 -m unittest discover -s secretary -p "test_*.py" -t .   # 131 tests, no network
 python3 -m secretary.cli whoami                                  # check both tokens
 ./tools/run-secretary.sh --dry-run                               # whole routine, writes nothing
 ```
@@ -162,7 +162,7 @@ get accounts suspended. Following is done by hand, from the app. Verified
 ## State
 
 Working: both accounts authenticated, 30 carousels prepared and rendered for
-`anova.autismo` with captions, auto-reply, the daily report. Posts 36–54 (by
+`anova.autismo` with captions (approved by the owner 2026-10-15), auto-reply, the daily report. Posts 36–54 (by
 the owner), two more reels and three stories joined the queue on 2026-10-09;
 reels and stories publish from GitHub.
 
@@ -174,7 +174,6 @@ Open, roughly in the order the owner wants them:
 - **`pankeka.app` has no posts.** `media/pankeka.app/` is empty, and nobody
   has yet said what the app does or who it is for — ask before writing
 - Its standard DM reply is a placeholder written without knowing the product
-- The 20 captions are a first draft and want a human read
 - Report delivery: `reports/<date>.txt`; the 07:00 run e-mails it via `secretary/deliver.py` once SMTP_PASSWORD (Titan, contato@anovasaude.org) is in .env
 - **The anovasaude admin panels** — three of the four tasks on the owner's
   board, and the largest remaining piece. See `docs/paineis.md`: a read-only
