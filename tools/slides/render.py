@@ -114,7 +114,7 @@ body{background:#0B1F3A;font-family:'Montserrat';color:#fff}
 .chip img{height:58px}.chip span{font-weight:700;font-size:24px;color:#0B1F3A;letter-spacing:.02em}
 .art{position:absolute;inset:0}
 .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,31,58,0) 30%,rgba(11,31,58,.92) 62%,#0B1F3A 78%)}
-.cover .txt{position:absolute;left:64px;right:64px;top:820px}
+.cover .txt{position:absolute;left:64px;right:64px;bottom:130px}
 .cover .pre{font-weight:900;font-size:66px;line-height:1.08;text-transform:uppercase;letter-spacing:-.01em}
 .cover .big{font-weight:900;font-size:76px;line-height:1.12;text-transform:uppercase;margin-top:10px;letter-spacing:-.01em}
 .cover .sub{font-weight:500;font-size:30px;line-height:1.4;text-transform:uppercase;margin-top:30px;letter-spacing:.02em;color:#E8EDF5}
@@ -129,8 +129,8 @@ body{background:#0B1F3A;font-family:'Montserrat';color:#fff}
   border-left:6px solid #F7C700;padding-left:30px}
 .ref{position:absolute;left:64px;right:64px;bottom:140px;font-weight:500;font-size:21px;color:rgba(255,255,255,.55)}
 .cta .main{position:absolute;left:64px;right:64px;top:300px;font-weight:900;font-size:78px;line-height:1.16;letter-spacing:-.01em}
-.cta .btn{position:absolute;left:64px;top:650px;background:#F7C700;color:#0B1F3A;font-weight:900;font-size:36px;padding:26px 46px;border-radius:70px}
-.cta .small{position:absolute;left:64px;top:790px;font-weight:600;font-size:28px;color:#D5DDEA}
+.cta .btn{display:inline-block;margin-top:56px;background:#F7C700;color:#0B1F3A;font-weight:900;font-size:36px;padding:26px 46px;border-radius:70px;letter-spacing:0}
+.cta .small{margin-top:30px;font-weight:600;font-size:28px;color:#D5DDEA;letter-spacing:0}
 .cta .nd{position:absolute;left:64px;right:64px;top:930px;font-weight:600;font-size:28px;line-height:1.4;color:rgba(255,255,255,.7);
   border-top:1.5px solid rgba(255,255,255,.2);padding-top:30px}
 .cta .logo{position:absolute;right:64px;bottom:130px;background:#fff;border-radius:24px;padding:18px 26px}
@@ -246,6 +246,16 @@ def motif(kind: str) -> str:
                '<text x="140" y="560" fill="#fff" opacity=".8" font-family="Montserrat" font-weight="700" font-size="44" '
                'letter-spacing="6">CARREGANDO… 12%</text>'
                + "".join(f'<circle cx="{820 + 46 * k}" cy="250" r="12" fill="#F7C700" opacity="{.3 + .25 * k}"/>' for k in range(3)))
+    elif kind == "timeline":  # anos do diagnóstico; 1980 em destaque
+        years = [(150, "1943"), (340, "1952"), (530, "1968"), (720, "1980"), (910, "2013")]
+        art = '<line x1="60" y1="430" x2="1020" y2="430" stroke="#fff" stroke-width="5" opacity=".6"/>'
+        for x, y in years:
+            hot = y == "1980"
+            art += (f'<circle cx="{x}" cy="430" r="{30 if hot else 16}" fill="{"#F7C700" if hot else "#fff"}"/>'
+                    f'<text x="{x}" y="{530 if hot else 510}" text-anchor="middle" fill="{"#F7C700" if hot else "#fff"}" '
+                    f'opacity="{1 if hot else .75}" font-family="Montserrat" font-weight="800" font-size="{56 if hot else 38}">{y}</text>')
+        art += ('<text x="720" y="330" text-anchor="middle" fill="#F7C700" font-family="Montserrat" font-weight="700" '
+                'font-size="30" letter-spacing="4">AUTISMO NO DSM</text>')
     else:  # pulse — batimento e ondas do corpo
         pts = "0,430 330,430 380,430 410,330 450,560 495,240 535,470 565,430 1080,430"
         art = (''.join(f'<circle cx="540" cy="430" r="{r}" fill="none" stroke="#fff" stroke-width="3" opacity="{o}"/>'
@@ -270,9 +280,9 @@ def foto_slides(p: dict) -> list[str]:
                         + f'<div class="ref">{ref}</div>' + bar, "body"))
     t = p["cta"]
     out.append(page(FOTO_CSS, '<div class="top"><span class="k">E agora?</span><span class="n">5/5</span></div>'
-                    + f'<div class="main">{md(t["lead"])}<br><span class="hl">{md(t["hl"])}</span></div>'
+                    + f'<div class="main">{md(t["lead"])}<br><span class="hl">{md(t["hl"])}</span><br>'
                     + '<div class="btn">Gratuito · link na bio</div>'
-                    + '<div class="small">8 minutos · sem cadastro · resultado na hora</div>'
+                    + '<div class="small">8 minutos · sem cadastro · resultado na hora</div></div>'
                     + f'<div class="nd">Rastreio não é diagnóstico: o resultado orienta a busca por uma avaliação profissional.</div>'
                     + f'<div class="logo"><img src="{asset("logo-full.png")}"></div>'
                     + f'<div class="bar"><span>{URL}</span><span></span></div>', "cta"))

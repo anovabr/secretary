@@ -60,7 +60,7 @@ Based on the reference with TV characters.
 - **Use it for** factual questions with a short answer: "Autismo é genético?",
   "Quantas pessoas são autistas?", "O que é ecolalia?".
 
-## Posts 55–64
+## Posts 55–65
 
 | # | Topic | Format |
 | :--- | :--- | :--- |
@@ -74,6 +74,7 @@ Based on the reference with TV characters.
 | 62 | Interoception | A |
 | 63 | O que é ecolalia? | B |
 | 64 | DSM-5 B2: insistence on sameness | DSM (post 39) |
+| 65 | O autismo de antigamente (history of the diagnosis) | A |
 
 Posts 56, 57 and 60 also exist as reels: `video_meltdown_e_shutdown`,
 `video_autismo_e_genetico` and `video_quantas_pessoas_sao_autistas`.

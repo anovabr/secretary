@@ -382,6 +382,41 @@ DSM-5-TR, critério B2 (APA, 2022).
 
 #DSM5 #rotina #autismoadulto #autismo #TEA""",
     },
+    # ------------------------------------------------------------------ 65
+    {
+        "n": 65, "slug": "autismo-de-antigamente", "format": "foto", "motif": "timeline",
+        "ref": "Volkmar & McPartland (2014), Annu Rev Clin Psychol · Brugha et al. (2011), Arch Gen Psychiatry",
+        "cover": {
+            "pre": "Precisamos falar sobre",
+            "hl": "o autismo de antigamente",
+            "sub": "**Ele sempre existiu.** O que faltava era **o nome certo**.",
+        },
+        "body": [
+            {"kicker": "Antes de 1980",
+             "text": "Nos manuais de 1952 e 1968, crianças autistas recebiam [[outro rótulo]]: “esquizofrenia infantil”.",
+             "more": "O autismo só virou diagnóstico próprio em 1980 — quase 40 anos depois de descrito por Leo Kanner, em 1943."},
+            {"kicker": "E os adultos?",
+             "text": "Uma pesquisa na Inglaterra encontrou [[cerca de 1% de autistas]] entre adultos — inclusive idosos.",
+             "more": "A proporção é parecida com a das crianças. E esses adultos tendiam a passar despercebidos."},
+            {"kicker": "Não surgiu agora",
+             "text": "A proporção não mudou com a idade: [[sempre houve autistas]].",
+             "more": "O que mudou foi a capacidade de reconhecer — nas crianças e, agora, nos adultos."},
+        ],
+        "cta": {"lead": "Cresceu sem diagnóstico?", "hl": "Vale fazer um rastreio."},
+        "caption": """O autismo não é novo. O nome certo é que demorou.
+
+Leo Kanner descreveu o autismo em 1943. Mas, nos manuais de psiquiatria de 1952 e 1968, crianças autistas recebiam outro rótulo: “esquizofrenia infantil”. O autismo só virou diagnóstico próprio em 1980.
+
+E os adultos daquela época? Uma pesquisa na Inglaterra avaliou adultos de todas as idades e encontrou cerca de 1% de autistas — proporção parecida com a das crianças, sem diferença entre jovens e idosos. Esses adultos tendiam a passar despercebidos.
+
+Sempre houve autistas. O que mudou foi a capacidade de reconhecer.
+
+Volkmar & McPartland (2014), Annual Review of Clinical Psychology; Brugha et al. (2011), Archives of General Psychiatry.
+
+{CLOSE}
+
+#historiadoautismo #diagnosticotardio #autismoadulto #autismo #TEA""",
+    },
 ]
 
 for _p in POSTS:

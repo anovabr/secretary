@@ -129,7 +129,7 @@ API cannot add a link sticker — buttons drawn into a story do nothing.
 **Who makes the slides.** Most material arrives from the owner as finished
 folders. Claude checks those (claims, addresses, captions) and never re-renders
 or redesigns them. Since 2026-10-21 the owner has also asked Claude to make new
-posts. Posts 55–64 and their stories, plus three reels, come from
+posts. Posts 55–65 and their stories, plus three reels, come from
 `tools/slides/` (render.py, reel.py, posts.py), in the three looks in
 `docs/formatos.md`. The owner's local folder numbering continues from there.
 
@@ -167,9 +167,11 @@ get accounts suspended. Following is done by hand, from the app. Verified
 Working: both accounts authenticated, 30 carousels prepared and rendered for
 `anova.autismo` with captions (approved by the owner 2026-10-15), auto-reply, the daily report. Posts 36–54 (by
 the owner), two more reels and three stories joined the queue on 2026-10-09;
-reels and stories publish from GitHub. Posts 55–64, their ten stories and
-three reels (made by Claude, `tools/slides/`) joined on 2026-10-21. The queue
-then runs to about 20 November.
+reels and stories publish from GitHub. Posts 55–65, their stories and three
+reels (made by Claude, `tools/slides/`) joined on 2026-10-21. The queue then
+runs to about 21 November. The owner's archival-children reel waits in
+`entrada/` (original plus a captioned copy) until they confirm where the
+footage comes from.
 
 Open, roughly in the order the owner wants them:
 
