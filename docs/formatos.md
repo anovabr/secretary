@@ -1,0 +1,92 @@
+# Carousel formats
+
+`anova.autismo` has three carousel looks. Each topic is assigned one. Claude
+writes the slide text, the references and `caption.txt`. The owner lays out the
+slides, in Claude Desktop's design option or the usual editor, and drops the
+finished folder in `entrada/`.
+
+All three use the same structure: 1080×1350 px, five slides (cover, three body
+slides, CTA), a reference on every factual claim, and `@anova.autismo` on every
+slide.
+
+## House — white and gold
+
+The look of posts 1–30, from `tools/gerar_posts.py`: white `#FFFFFF`, text
+`#1E1E24`, gold `#C9A227` headings, gray `#6B6B70`, and the rainbow stripe.
+**Use it for** series that already exist in this look, such as the DSM-5
+criteria (post 39) and the support levels (40–43).
+
+## A — "Precisamos falar" (photo, serious)
+
+Based on the @renatautista.psi reference.
+
+- **Cover:** a full-bleed photo of one person, looking calm or tired, never in
+  crisis. A navy gradient covers the bottom 45% (`#0B1F3A` at 0%, then 90%
+  opacity). The headline is two lines of heavy upper-case sans, white. The key
+  phrase sits on a yellow block, `#F7C700`, with navy text. One small line
+  below it is upper case, with **bold** on one or two words. `@anova.autismo`
+  sits at the bottom left and a thin arrow at the bottom right.
+- **Body slides:** the same navy, `#0B1F3A`, as a solid background with
+  white text. The yellow block marks one phrase per slide, no more. The
+  reference goes small at the bottom.
+- **Photos:** use your own photos, licensed stock, or generated people. Never
+  take a real person's face from the internet.
+- **Use it for** heavy topics, which a playful look would trivialise:
+  meltdown and shutdown, autistic inertia, interoception, suicide.
+
+## B — "Conheça" (playful, for questions)
+
+Based on the reference with TV characters.
+
+- **Cover:** a cream background, `#FFF6EC`, with pastel blobs in pink,
+  `#FFD6E0`, mint, `#CDEFE3`, and sky blue, `#D6E9FF`. Scribbles and a light
+  bulb add accents. The headline is a question in rounded heavy sans across
+  three lines, with each key word on its own pill: pink `#E5366B`, blue
+  `#2E6FD9`, white text. Illustrated people go at the bottom.
+- **Body slides:** cream background, one answer per slide, with a small
+  illustration.
+- **What not to copy from the reference:**
+  - **TV stills.** They are copyrighted, and the actors' images are not ours.
+    Some of those characters were never written as autistic. Use original
+    illustrations.
+  - **Puzzle pieces.** Many autistic adults read them as "something missing".
+    That runs against the rule that autism is not described as a deficit.
+    Use the infinity loop or plain shapes instead.
+- **Use it for** factual questions with a short answer: "Autismo é genético?",
+  "Quantas pessoas são autistas?", "O que é ecolalia?".
+
+## Assignments for the next batch
+
+| # | Topic | Format |
+| :--- | :--- | :--- |
+| 1 | DSM-5 A2: non-verbal communication | House |
+| 2 | DSM-5 A3: relationships | House |
+| 3 | DSM-5 B1: repetitive movements and speech | House |
+| 4 | DSM-5 B2: insistence on sameness | House |
+| 5 | Meltdown, shutdown and tantrum | A |
+| 6 | Autistic inertia | A |
+| 7 | Interoception | A |
+| 8 | Autismo é genético? | B |
+| 9 | 1 em 31: quantas pessoas são autistas? | B |
+| 10 | O que é ecolalia? | B |
+
+## Suicide: only under these conditions
+
+The literature supports this topic: suicide mortality is several times higher
+in autistic people (Hirvikoski et al., 2016). It gets written only under
+these conditions:
+
+- Follow the safe-messaging guidelines (WHO, 2023): no method, no detail of an
+  individual case, and no presenting suicide as a solution or as inevitable.
+- CVV **188** on the cover and the CTA, and in the caption.
+- The DMs it brings stay with a person. The distress pattern in
+  `secretary/replies.py` already routes them to the report.
+
+## Prompt for the design tool
+
+Paste the format section above, then:
+
+> Monte um carrossel de 5 slides, 1080×1350, no formato [A/B] descrito acima,
+> com exatamente este texto — não reescreva, não acrescente dados:
+> [texto dos slides]
+> Exporte como slide-01.png … slide-05.png.
