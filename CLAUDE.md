@@ -126,9 +126,12 @@ spaces in them. Video comes from GitHub like the images; the three reels of
 ending in a post's slug goes out with that post only; the rest take turns. The
 API cannot add a link sticker — buttons drawn into a story do nothing.
 
-**The owner makes the slides and videos.** New material arrives as finished
-folders; Claude checks them (claims, addresses, captions) and does not render
-or redesign them.
+**Who makes the slides.** Most material arrives from the owner as finished
+folders. Claude checks those (claims, addresses, captions) and never re-renders
+or redesigns them. Since 2026-10-21 the owner has also asked Claude to make new
+posts. Posts 55–64 and their stories, plus three reels, come from
+`tools/slides/` (render.py, reel.py, posts.py), in the three looks in
+`docs/formatos.md`. The owner's local folder numbering continues from there.
 
 **`/novo-post`** writes a new carousel in the house style — five slides, a
 reference on every factual claim, matching caption. Use it rather than
@@ -164,7 +167,9 @@ get accounts suspended. Following is done by hand, from the app. Verified
 Working: both accounts authenticated, 30 carousels prepared and rendered for
 `anova.autismo` with captions (approved by the owner 2026-10-15), auto-reply, the daily report. Posts 36–54 (by
 the owner), two more reels and three stories joined the queue on 2026-10-09;
-reels and stories publish from GitHub.
+reels and stories publish from GitHub. Posts 55–64, their ten stories and
+three reels (made by Claude, `tools/slides/`) joined on 2026-10-21. The queue
+then runs to about 20 November.
 
 Open, roughly in the order the owner wants them:
 

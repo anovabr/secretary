@@ -9,6 +9,11 @@ All three use the same structure: 1080×1350 px, five slides (cover, three body
 slides, CTA), a reference on every factual claim, and `@anova.autismo` on every
 slide.
 
+Since 2026-10-21, `tools/slides/render.py` renders all three here from the
+texts in `tools/slides/posts.py`; see `tools/slides/README.md`. Posts 55–64
+were made this way. The DSM-5 posts use the post-39 layout rather than the
+white-and-gold one from `gerar_posts.py`.
+
 ## House — white and gold
 
 The look of posts 1–30, from `tools/gerar_posts.py`: white `#FFFFFF`, text
@@ -55,20 +60,23 @@ Based on the reference with TV characters.
 - **Use it for** factual questions with a short answer: "Autismo é genético?",
   "Quantas pessoas são autistas?", "O que é ecolalia?".
 
-## Assignments for the next batch
+## Posts 55–64
 
 | # | Topic | Format |
 | :--- | :--- | :--- |
-| 1 | DSM-5 A2: non-verbal communication | House |
-| 2 | DSM-5 A3: relationships | House |
-| 3 | DSM-5 B1: repetitive movements and speech | House |
-| 4 | DSM-5 B2: insistence on sameness | House |
-| 5 | Meltdown, shutdown and tantrum | A |
-| 6 | Autistic inertia | A |
-| 7 | Interoception | A |
-| 8 | Autismo é genético? | B |
-| 9 | 1 em 31: quantas pessoas são autistas? | B |
-| 10 | O que é ecolalia? | B |
+| 55 | DSM-5 A2: non-verbal communication | DSM (post 39) |
+| 56 | Meltdown and shutdown | A |
+| 57 | Autismo é genético? | B |
+| 58 | DSM-5 A3: relationships | DSM (post 39) |
+| 59 | Autistic inertia | A |
+| 60 | Quantas pessoas são autistas? | B |
+| 61 | DSM-5 B1: repetitive movements and speech | DSM (post 39) |
+| 62 | Interoception | A |
+| 63 | O que é ecolalia? | B |
+| 64 | DSM-5 B2: insistence on sameness | DSM (post 39) |
+
+Posts 56, 57 and 60 also exist as reels: `video_meltdown_e_shutdown`,
+`video_autismo_e_genetico` and `video_quantas_pessoas_sao_autistas`.
 
 ## Suicide: only under these conditions
 
