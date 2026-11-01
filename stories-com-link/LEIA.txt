@@ -1,0 +1,51 @@
+STORIES COM LINK — @anova.autismo
+
+Estes stories são para postar À MÃO. Eles não estão na fila automática
+(a API não coloca figurinha de link), então a secretária não os publica.
+
+Como postar:
+1. Abra o story no Instagram e escolha a imagem do dia nesta pasta.
+2. Toque no ícone de figurinhas, escolha "Link", cole a URL e digite o texto da figurinha.
+3. Posicione a figurinha sobre a área tracejada, acima de "Toque no link", e publique.
+
+Agenda (2 semanas, 4 por semana):
+
+1. segunda, 02/11/2026 — adultos
+   Arquivo:            01-contato-visual.png
+   URL da figurinha:   https://autismo.anovasaude.org/test.html?instrument=rabesp-a&utm_source=instagram&utm_medium=story&utm_campaign=contato-visual
+   Texto da figurinha: Fazer o teste gratuito
+
+2. terça, 03/11/2026 — adultos
+   Arquivo:            02-restaurante-cheio.png
+   URL da figurinha:   https://autismo.anovasaude.org/test.html?instrument=rabesp-a&utm_source=instagram&utm_medium=story&utm_campaign=restaurante-cheio
+   Texto da figurinha: Fazer o teste gratuito
+
+3. quinta, 05/11/2026 — pais
+   Arquivo:            03-primeiras-palavras.png
+   URL da figurinha:   https://autismo.anovasaude.org/test-crianca.html?utm_source=instagram&utm_medium=story&utm_campaign=primeiras-palavras
+   Texto da figurinha: Triagem para meu filho
+
+4. sábado, 07/11/2026 — adultos
+   Arquivo:            04-ironia.png
+   URL da figurinha:   https://autismo.anovasaude.org/test.html?instrument=rabesp-a&utm_source=instagram&utm_medium=story&utm_campaign=ironia
+   Texto da figurinha: Fazer o teste gratuito
+
+5. segunda, 09/11/2026 — adultos
+   Arquivo:            05-plano-que-muda.png
+   URL da figurinha:   https://autismo.anovasaude.org/test.html?instrument=rabesp-a&utm_source=instagram&utm_medium=story&utm_campaign=plano-que-muda
+   Texto da figurinha: Fazer o teste gratuito
+
+6. terça, 10/11/2026 — pais
+   Arquivo:            06-falas-do-desenho.png
+   URL da figurinha:   https://autismo.anovasaude.org/test-crianca.html?utm_source=instagram&utm_medium=story&utm_campaign=falas-do-desenho
+   Texto da figurinha: Triagem para meu filho
+
+7. quinta, 12/11/2026 — adultos
+   Arquivo:            07-assunto-que-prende.png
+   URL da figurinha:   https://autismo.anovasaude.org/test.html?instrument=rabesp-a&utm_source=instagram&utm_medium=story&utm_campaign=assunto-que-prende
+   Texto da figurinha: Fazer o teste gratuito
+
+8. sábado, 14/11/2026 — pais
+   Arquivo:            08-comida-pela-cor.png
+   URL da figurinha:   https://autismo.anovasaude.org/test-crianca.html?utm_source=instagram&utm_medium=story&utm_campaign=comida-pela-cor
+   Texto da figurinha: Triagem para meu filho
