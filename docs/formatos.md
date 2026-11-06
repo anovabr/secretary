@@ -60,7 +60,7 @@ Based on the reference with TV characters.
 - **Use it for** factual questions with a short answer: "Autismo é genético?",
   "Quantas pessoas são autistas?", "O que é ecolalia?".
 
-## Posts 55–65
+## Posts 55–75
 
 | # | Topic | Format |
 | :--- | :--- | :--- |
@@ -75,9 +75,20 @@ Based on the reference with TV characters.
 | 63 | O que é ecolalia? | B |
 | 64 | DSM-5 B2: insistence on sameness | DSM (post 39) |
 | 65 | O autismo de antigamente (history of the diagnosis) | A |
+| 66 | DSM-5 B3: intense interests | DSM (post 39) |
+| 67 | Telas causam autismo? | B |
+| 68 | DSM-5 B4: sensory reactivity | DSM (post 39) |
+| 69 | Autism and epilepsy | A |
+| 70 | O que é o M-CHAT? | B |
+| 71 | Autismo tem cura? | B |
+| 72 | O que é a CIPTEA? | B |
+| 73 | Autism and depression | A |
+| 74 | Começar cedo faz diferença? | B |
+| 75 | Monotropism | A |
 
 Posts 56, 57 and 60 also exist as reels: `video_meltdown_e_shutdown`,
-`video_autismo_e_genetico` and `video_quantas_pessoas_sao_autistas`.
+`video_autismo_e_genetico` and `video_quantas_pessoas_sao_autistas`; so do
+59, 62, 65, 67, 71 and 74 (made 2026-11-06).
 
 ## Suicide: only under these conditions
 

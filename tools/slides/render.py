@@ -256,6 +256,27 @@ def motif(kind: str) -> str:
                     f'opacity="{1 if hot else .75}" font-family="Montserrat" font-weight="800" font-size="{56 if hot else 38}">{y}</text>')
         art += ('<text x="720" y="330" text-anchor="middle" fill="#F7C700" font-family="Montserrat" font-weight="700" '
                 'font-size="30" letter-spacing="4">AUTISMO NO DSM</text>')
+    elif kind == "eeg":  # traçado de eletroencefalograma com uma descarga no meio
+        import math
+        pts = []
+        for x in range(0, 1081, 5):
+            burst = 420 <= x <= 640
+            amp = 150 * math.sin((x - 420) / 220 * math.pi) if burst else 18
+            pts.append(f"{x},{430 + amp * math.sin(x / (4.0 if burst else 11.0)):.1f}")
+        art = f'<polyline points="{" ".join(pts)}" fill="none" stroke="#F7C700" stroke-width="6" stroke-linejoin="round"/>'
+        art += "".join(f'<line x1="60" y1="{y}" x2="1020" y2="{y}" stroke="#fff" stroke-width="2" opacity=".18"/>'
+                       for y in (250, 330, 530, 610))
+    elif kind == "beam":  # lanterna: um feixe estreito e intenso no escuro
+        art = ('<polygon points="230,600 1040,260 1040,700" fill="#F7C700" opacity=".22"/>'
+               '<polygon points="230,600 1040,380 1040,580" fill="#F7C700" opacity=".45"/>'
+               '<rect x="70" y="560" width="170" height="80" rx="18" fill="#fff" transform="rotate(-14 155 600)"/>'
+               '<circle cx="900" cy="480" r="40" fill="#F7C700"/>')
+    elif kind == "cloud":  # nuvem carregada sobre uma linha de horizonte
+        art = ('<g fill="#fff" opacity=".85"><circle cx="420" cy="360" r="110"/><circle cx="560" cy="300" r="140"/>'
+               '<circle cx="700" cy="370" r="100"/><rect x="320" y="360" width="480" height="110" rx="55"/></g>'
+               + "".join(f'<line x1="{x}" y1="500" x2="{x - 24}" y2="580" stroke="#F7C700" stroke-width="7" '
+                         f'stroke-linecap="round" opacity=".8"/>' for x in (420, 500, 580, 660, 740))
+               + '<line x1="60" y1="680" x2="1020" y2="680" stroke="#fff" stroke-width="4" opacity=".4"/>')
     else:  # pulse — batimento e ondas do corpo
         pts = "0,430 330,430 380,430 410,330 450,560 495,240 535,470 565,430 1080,430"
         art = (''.join(f'<circle cx="540" cy="430" r="{r}" fill="none" stroke="#fff" stroke-width="3" opacity="{o}"/>'

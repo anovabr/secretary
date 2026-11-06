@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Textos dos carrosséis 55–64 (anova.autismo), renderizados por render.py.
+"""Textos dos carrosséis 55–75 (anova.autismo), renderizados por render.py.
 
 Marcação dentro dos textos:  **negrito**   [[destaque amarelo/colorido]]
 Formatos (docs/formatos.md):  dsm (série DSM-5 na vida real, como o post 39),
@@ -416,6 +416,379 @@ Volkmar & McPartland (2014), Annual Review of Clinical Psychology; Brugha et al.
 {CLOSE}
 
 #historiadoautismo #diagnosticotardio #autismoadulto #autismo #TEA""",
+    },
+    # ------------------------------------------------------------------ 66
+    {
+        "n": 66, "slug": "dsm5-interesses-intensos", "format": "dsm",
+        "ref": "DSM-5-TR, critério B3 (APA, 2022)",
+        "cover": {
+            "kicker": "Critério B · Aspecto 3",
+            "title": "Interesses fixos e intensos",
+            "lead": "Saber tudo sobre uma coisa só.",
+            "punch": "Não é só gostar muito. É o assunto ocupar o espaço inteiro.",
+        },
+        "examples": [
+            {"manual": "Interesses fixos e muito restritos, fora do comum na intensidade ou no foco.",
+             "real": ["Você passa o fim de semana inteiro lendo sobre trens, fungos ou uma banda — e nem vê a hora passar.",
+                      "Numa conversa, sempre encontra um caminho de volta para o seu assunto."],
+             "note": "Não é obsessão vazia. Para muita gente, é a maior fonte de prazer e de calma."},
+            {"manual": "Forte apego a objetos ou temas incomuns.",
+             "real": ["Você coleciona algo que ninguém à sua volta entende — e sabe a história de cada peça.",
+                      "Um objeto específico precisa estar com você para o dia dar certo."],
+             "note": "O valor não está no objeto. Está no que ele organiza por dentro."},
+            {"manual": "Interesses excessivamente circunscritos ou perseverativos.",
+             "real": ["Você lê o mesmo livro, assiste à mesma série, ouve a mesma música pela vigésima vez.",
+                      "Muda de assunto só quando alguém interrompe — e custa voltar para o resto."],
+             "note": "Repetir o que se conhece descansa. O novo cansa mais do que parece."},
+        ],
+        "cta": {"comment": "Qual é (ou foi) o seu assunto?", "remember": "Um exemplo sozinho não é diagnóstico."},
+        "caption": """Interesses fixos e intensos: não é só gostar muito.
+
+É o terceiro aspecto do critério B do DSM-5-TR. Na vida real, pode ser passar o fim de semana inteiro lendo sobre trens, fungos ou uma banda sem ver a hora passar. Sempre achar um caminho de volta para o seu assunto. Colecionar algo que ninguém entende e saber a história de cada peça. Ver a mesma série pela vigésima vez.
+
+Não é obsessão vazia. Para muita gente, é a maior fonte de prazer e de calma do dia.
+
+Um exemplo sozinho não é diagnóstico. Qual é — ou foi — o seu assunto?
+
+DSM-5-TR, critério B3 (APA, 2022).
+
+{CLOSE}
+
+#DSM5 #hiperfoco #autismoadulto #autismo #TEA""",
+    },
+    # ------------------------------------------------------------------ 67
+    {
+        "n": 67, "slug": "telas-causam-autismo", "format": "conheca",
+        "ref": "Ophir et al. (2023), JAMA Network Open · Bai et al. (2019), JAMA Psychiatry",
+        "cover": {
+            "lines": [("Telas causam", "plain"), ("autismo?", "pink")],
+            "sub": "A resposta curta: as pesquisas não mostram isso.",
+            "people": ["woman_technologist-medium", "person_raising_hand-medium", "man_tipping_hand-medium-dark", "teacher-medium-dark"],
+        },
+        "body": [
+            {"kicker": "O que os estudos acharam", "emoji": "bar_chart",
+             "head": "[[46 estudos]], 560 mil pessoas",
+             "text": "Uma revisão juntou tudo o que havia. A associação entre tela e autismo foi pequena — e deixou de ser significativa depois de corrigido o viés de publicação.",
+             "ref": "Ophir et al. (2023), JAMA Network Open"},
+            {"kicker": "Pode ser o contrário", "emoji": "mobile_phone",
+             "head": "Quem veio [[primeiro]]?",
+             "text": "Os estudos eram observacionais. Os autores lembram que crianças autistas podem preferir telas — e não o contrário.",
+             "ref": "Ophir et al. (2023), JAMA Network Open"},
+            {"kicker": "O que mais pesa", "emoji": "dna",
+             "head": "Cerca de [[80%]] é herdado",
+             "text": "Num estudo com 2 milhões de pessoas, a maior parte da variação no risco de autismo veio de fatores herdados.",
+             "ref": "Bai et al. (2019), JAMA Psychiatry"},
+        ],
+        "cta": {"lead": "Ficou com dúvida sobre você?", "head": "Faça o rastreio gratuito"},
+        "caption": """Telas causam autismo? As pesquisas não mostram isso.
+
+Uma revisão de 2023 juntou 46 estudos, com mais de 560 mil pessoas. A associação entre tempo de tela e autismo foi pequena — e deixou de ser significativa depois de corrigido o viés de publicação. Todos os estudos eram observacionais, e os autores lembram que o caminho pode ser o inverso: crianças autistas podem preferir telas.
+
+O que mais pesa é outra coisa: num estudo com 2 milhões de pessoas, cerca de 80% da variação no risco de autismo veio de fatores herdados.
+
+Tela demais pode trazer outros problemas. Mas culpar a tela, ou os pais, pelo autismo não tem base.
+
+Ophir et al. (2023), JAMA Network Open; Bai et al. (2019), JAMA Psychiatry.
+
+{CLOSE}
+
+#mitosobreautismo #telas #autismo #autismoinfantil #TEA""",
+    },
+    # ------------------------------------------------------------------ 68
+    {
+        "n": 68, "slug": "dsm5-sensorial", "format": "dsm",
+        "ref": "DSM-5-TR, critério B4 (APA, 2022)",
+        "cover": {
+            "kicker": "Critério B · Aspecto 4",
+            "title": "Reação diferente a sons, luzes, texturas e dor",
+            "lead": "Demais ou de menos.",
+            "punch": "O mesmo mundo, num volume que não é o dos outros.",
+        },
+        "examples": [
+            {"manual": "Hiper-reatividade a estímulos sensoriais.",
+             "real": ["O barulho do liquidificador, da obra ou do restaurante cheio dói de verdade.",
+                      "Você corta a etiqueta de toda roupa nova antes de usar."],
+             "note": "Não é frescura. O estímulo chega mais alto do que chega para os outros."},
+            {"manual": "Hiporreatividade: aparente indiferença a dor ou temperatura.",
+             "real": ["Você descobre um machucado horas depois, sem lembrar de quando bateu.",
+                      "Sai de casa de manga curta num dia frio e só percebe quando alguém comenta."],
+             "note": "Sentir menos também é diferença sensorial — e pode passar despercebido."},
+            {"manual": "Interesse incomum por aspectos sensoriais do ambiente.",
+             "real": ["Você fica olhando luzes, reflexos ou coisas girando mais tempo do que os outros.",
+                      "Precisa cheirar ou tocar um objeto para conhecê-lo de verdade."],
+             "note": "Às vezes o sensorial não incomoda: encanta."},
+        ],
+        "cta": {"comment": "Qual você mais vive: 1, 2 ou 3?", "remember": "Um exemplo sozinho não é diagnóstico."},
+        "caption": """Sons, luzes, texturas, dor: o mesmo mundo, num volume diferente.
+
+É o quarto aspecto do critério B do DSM-5-TR. Na vida real, pode ser o barulho do liquidificador doer de verdade. Cortar a etiqueta de toda roupa nova. Descobrir um machucado horas depois. Sair de manga curta no frio e só perceber quando alguém comenta. Ficar olhando luzes e reflexos mais tempo do que os outros.
+
+Pode ser demais, pode ser de menos — e às vezes não incomoda, encanta.
+
+Um exemplo sozinho não é diagnóstico. Qual você mais vive: 1, 2 ou 3?
+
+DSM-5-TR, critério B4 (APA, 2022).
+
+{CLOSE}
+
+#DSM5 #sensorial #autismoadulto #autismo #TEA""",
+    },
+    # ------------------------------------------------------------------ 69
+    {
+        "n": 69, "slug": "autismo-e-epilepsia", "format": "foto", "motif": "eeg",
+        "ref": "Liu et al. (2022), Autism · Strasser et al. (2018), Dev Med Child Neurol · Hyman et al. (2020), Pediatrics",
+        "cover": {
+            "pre": "Precisamos falar sobre",
+            "hl": "autismo e epilepsia",
+            "sub": "**Andam juntos** mais do que se imagina — **e pouca gente sabe**.",
+        },
+        "body": [
+            {"kicker": "Quanto",
+             "text": "Juntando 66 estudos, cerca de [[1 em cada 10 autistas]] também tinha epilepsia.",
+             "more": "Foi mais comum em adolescentes, adultos, mulheres e em quem tem deficiência intelectual."},
+            {"kicker": "Nos dois sentidos",
+             "text": "Entre pessoas com epilepsia, [[6,3% eram autistas]].",
+             "more": "Em algumas formas de epilepsia infantil, a proporção foi muito maior."},
+            {"kicker": "Por que importa",
+             "text": "A Academia Americana de Pediatria pede que os médicos [[conheçam as condições]] que acompanham o autismo.",
+             "more": "Convulsões estão nessa lista, ao lado de sono, intestino, ansiedade e TDAH."},
+        ],
+        "cta": {"lead": "Se reconheceu no autismo?", "hl": "Vale fazer um rastreio."},
+        "caption": """Autismo e epilepsia andam juntos mais do que se imagina.
+
+Uma revisão de 66 estudos estimou que cerca de 1 em cada 10 autistas também tem epilepsia — mais comum em adolescentes, adultos, mulheres e em quem tem deficiência intelectual.
+
+O caminho inverso também aparece: entre pessoas com epilepsia, 6,3% eram autistas, e em algumas epilepsias da infância a proporção foi bem maior.
+
+Por isso a Academia Americana de Pediatria pede que os médicos conheçam as condições que costumam acompanhar o autismo — convulsões entre elas.
+
+Liu et al. (2022), Autism; Strasser et al. (2018), Developmental Medicine & Child Neurology; Hyman et al. (2020), Pediatrics.
+
+{CLOSE}
+
+#epilepsia #autismo #autismoadulto #neurologia #TEA""",
+    },
+    # ------------------------------------------------------------------ 70
+    {
+        "n": 70, "slug": "o-que-e-o-mchat", "format": "conheca",
+        "ref": "Robins et al. (2014), Pediatrics · Hyman et al. (2020), Pediatrics · Lei 13.438/2017",
+        "cover": {
+            "lines": [("O que é o", "plain"), ("M-CHAT?", "blue")],
+            "sub": "O rastreio de autismo feito na primeira infância.",
+            "people": ["woman_raising_hand-medium-dark", "health_worker-medium-light", "teacher-medium-dark", "man_raising_hand-medium-light"],
+        },
+        "body": [
+            {"kicker": "O que é", "emoji": "writing_hand",
+             "head": "Perguntas [[para os pais]]",
+             "text": "Um questionário respondido pela família, aplicado nas consultas de 18 e 24 meses. A Academia Americana de Pediatria recomenda o rastreio nessas duas idades.",
+             "ref": "Robins et al. (2014); Hyman et al. (2020), Pediatrics"},
+            {"kicker": "Rastreio não é diagnóstico", "emoji": "magnifying_glass_tilted_left",
+             "head": "[[47,5%]] tiveram diagnóstico",
+             "text": "Entre 16 mil crianças, das que seguiram em risco após a entrevista, 47,5% foram diagnosticadas com autismo — e 94,6% tinham algum atraso ou ponto de atenção.",
+             "ref": "Robins et al. (2014), Pediatrics"},
+            {"kicker": "No Brasil", "emoji": "calendar",
+             "head": "É lei [[até os 18 meses]]",
+             "text": "Desde 2017, toda criança deve passar por um instrumento de detecção de risco para o desenvolvimento psíquico nos primeiros 18 meses.",
+             "ref": "Lei 13.438/2017"},
+        ],
+        "cta": {"lead": "Tem dúvida sobre seu filho?", "head": "Faça o rastreio gratuito"},
+        "caption": """O que é o M-CHAT? É o rastreio de autismo mais usado na primeira infância.
+
+São perguntas respondidas pelos pais nas consultas de 18 e 24 meses — as idades em que a Academia Americana de Pediatria recomenda rastrear.
+
+Rastreio não é diagnóstico, e os números mostram isso: num estudo com 16 mil crianças, das que seguiram em risco depois da entrevista, 47,5% foram diagnosticadas com autismo. Mas 94,6% tinham algum atraso ou ponto de atenção no desenvolvimento — ou seja, quase sempre vale avaliar. E essas crianças foram diagnosticadas dois anos mais cedo do que a mediana nos EUA.
+
+No Brasil, desde 2017 a lei exige um instrumento de detecção de risco para o desenvolvimento psíquico nos primeiros 18 meses de vida.
+
+Robins et al. (2014), Pediatrics; Hyman et al. (2020), Pediatrics; Lei 13.438/2017.
+
+{CLOSE}
+
+#MCHAT #autismoinfantil #rastreio #autismo #TEA""",
+    },
+    # ------------------------------------------------------------------ 71
+    {
+        "n": 71, "slug": "autismo-tem-cura", "format": "conheca",
+        "ref": "DSM-5-TR (APA, 2022) · Hyman et al. (2020), Pediatrics · FDA (2019)",
+        "cover": {
+            "lines": [("Autismo", "plain"), ("tem cura?", "pink")],
+            "sub": "A pergunta parte de uma ideia errada.",
+            "people": ["person_tipping_hand-medium", "woman_gesturing_ok-medium", "health_worker-medium-light", "woman_tipping_hand-medium-light"],
+        },
+        "body": [
+            {"kicker": "O que é", "emoji": "brain",
+             "head": "Não é [[doença]]",
+             "text": "Autismo é uma forma de o cérebro se desenvolver. Os sinais aparecem desde o início do desenvolvimento.",
+             "ref": "DSM-5-TR (APA, 2022)"},
+            {"kicker": "O que muda", "emoji": "people_hugging",
+             "head": "O que muda é [[o apoio]]",
+             "text": "Há intervenções com evidência para trabalhar habilidades específicas — escolhidas junto com a família.",
+             "ref": "Hyman et al. (2020), Pediatrics"},
+            {"kicker": "Cuidado", "emoji": "warning",
+             "head": "Desconfie de [[“cura”]]",
+             "text": "O MMS, vendido como cura do autismo, é dióxido de cloro — um alvejante. A FDA alertou: não beba, faz mal.",
+             "ref": "FDA (2019)"},
+        ],
+        "cta": {"lead": "Quer entender o seu caso?", "head": "Faça o rastreio gratuito"},
+        "caption": """Autismo tem cura? A pergunta parte de uma ideia errada.
+
+Autismo não é doença. É uma condição do neurodesenvolvimento: uma forma de o cérebro se desenvolver, com sinais desde o início da vida.
+
+O que muda é o apoio. Existem intervenções com evidência para trabalhar habilidades específicas — escolhidas junto com a família, não impostas.
+
+E desconfie de quem vende “cura”. O MMS, oferecido como tratamento para autismo, é dióxido de cloro, um alvejante. A FDA alertou que o produto não deve ser consumido e pode causar danos sérios.
+
+DSM-5-TR (APA, 2022); Hyman et al. (2020), Pediatrics; FDA (2019).
+
+{CLOSE}
+
+#mitosobreautismo #neurodiversidade #autismo #autismoadulto #TEA""",
+    },
+    # ------------------------------------------------------------------ 72
+    {
+        "n": 72, "slug": "o-que-e-a-ciptea", "format": "conheca",
+        "ref": "Lei 13.977/2020 · Lei 12.764/2012",
+        "cover": {
+            "lines": [("O que é a", "plain"), ("CIPTEA?", "blue")],
+            "sub": "A carteira de identificação da pessoa autista.",
+            "people": ["woman_raising_hand-medium-dark", "man_raising_hand-medium-light", "person_raising_hand-medium", "woman_technologist-medium"],
+        },
+        "body": [
+            {"kicker": "O que é", "emoji": "identification_card",
+             "head": "Uma carteira [[gratuita]]",
+             "text": "Criada em 2020, identifica a pessoa com autismo para garantir atenção integral e prioridade no atendimento, em serviços públicos e privados.",
+             "ref": "Lei 13.977/2020"},
+            {"kicker": "Como pedir", "emoji": "writing_hand",
+             "head": "Com [[relatório médico]]",
+             "text": "O pedido é feito ao órgão do estado ou do município, com relatório médico que indique o código da CID.",
+             "ref": "Lei 13.977/2020, art. 3º-A, § 1º"},
+            {"kicker": "Validade", "emoji": "calendar",
+             "head": "Vale [[5 anos]]",
+             "text": "Depois é revalidada com o mesmo número — o que também ajuda a contar quantas pessoas autistas há no país.",
+             "ref": "Lei 13.977/2020, art. 3º-A, § 3º"},
+        ],
+        "cta": {"lead": "Ainda não tem diagnóstico?", "head": "Comece pelo rastreio"},
+        "caption": """O que é a CIPTEA? É a Carteira de Identificação da Pessoa com Transtorno do Espectro Autista.
+
+Criada pela Lei 13.977/2020, ela serve para garantir atenção integral, pronto atendimento e prioridade no atendimento e no acesso a serviços públicos e privados — principalmente saúde, educação e assistência social. A expedição é gratuita.
+
+O pedido é feito ao órgão responsável do seu estado ou município, com relatório médico que indique o código da CID. A carteira vale 5 anos e é revalidada com o mesmo número.
+
+Os detalhes do pedido mudam de cidade para cidade: vale consultar a prefeitura ou a secretaria de assistência social.
+
+Lei 13.977/2020; Lei 12.764/2012 (Lei Berenice Piana).
+
+{CLOSE}
+
+#CIPTEA #direitosdoautista #autismo #autismoadulto #TEA""",
+    },
+    # ------------------------------------------------------------------ 73
+    {
+        "n": 73, "slug": "autismo-e-depressao", "format": "foto", "motif": "cloud",
+        "ref": "Hollocks et al. (2019), Psychological Medicine",
+        "cover": {
+            "pre": "Precisamos falar sobre",
+            "hl": "autismo e depressão",
+            "sub": "**Não faz parte do autismo.** Mas aparece **muito** junto.",
+        },
+        "body": [
+            {"kicker": "Depressão",
+             "text": "Juntando 29 estudos, [[23% dos adultos autistas]] estavam com depressão no momento — e 37% já tinham tido ao longo da vida.",
+             "more": "São mais de 26 mil pessoas, em pesquisas de vários países."},
+            {"kicker": "Ansiedade",
+             "text": "Com a ansiedade, os números foram ainda maiores: [[27% no momento, 42% na vida]].",
+             "more": "Os estudos variaram bastante entre si: são estimativas, não um retrato exato."},
+            {"kicker": "O que fazer",
+             "text": "Depressão e ansiedade [[merecem cuidado próprio]], com profissional de saúde mental.",
+             "more": "Se você está em sofrimento agora, ligue 188 (CVV): gratuito, 24 horas."},
+        ],
+        "cta": {"lead": "Nunca investigou autismo?", "hl": "Vale fazer um rastreio."},
+        "caption": """Depressão não faz parte do autismo. Mas aparece muito junto.
+
+Uma revisão de 29 estudos, com mais de 26 mil adultos autistas, estimou que 23% estavam com depressão no momento da pesquisa e 37% já tinham tido ao longo da vida. Com a ansiedade, os números foram ainda maiores: 27% no momento e 42% na vida.
+
+Os estudos variaram bastante entre si, então esses números são estimativas, não um retrato exato.
+
+Depressão e ansiedade merecem cuidado próprio, com profissional de saúde mental. Se você está em sofrimento agora, ligue 188 (CVV): é gratuito e funciona 24 horas.
+
+Hollocks et al. (2019), Psychological Medicine.
+
+{CLOSE}
+
+#depressao #saudemental #autismoadulto #autismo #TEA""",
+    },
+    # ------------------------------------------------------------------ 74
+    {
+        "n": 74, "slug": "comecar-cedo-faz-diferenca", "format": "conheca",
+        "ref": "Hyman et al. (2020), Pediatrics · Dawson et al. (2010), Pediatrics",
+        "cover": {
+            "lines": [("Começar cedo", "plain"), ("faz diferença?", "blue")],
+            "sub": "Sim — e por isso o rastreio importa.",
+            "people": ["teacher-medium-dark", "woman_raising_hand-medium-dark", "health_worker-medium-light", "man_tipping_hand-medium-dark"],
+        },
+        "body": [
+            {"kicker": "Quando", "emoji": "calendar",
+             "head": "A partir de [[18 meses]]",
+             "text": "O autismo pode ser diagnosticado a partir dos 18 meses — e há intervenções com evidência que podem ajudar.",
+             "ref": "Hyman et al. (2020), Pediatrics"},
+            {"kicker": "O que um estudo mostrou", "emoji": "bar_chart",
+             "head": "[[17,6 pontos]] contra 7,0",
+             "text": "Num ensaio com 48 crianças de 18 a 30 meses, dois anos de intervenção precoce trouxeram ganho médio maior em testes cognitivos do que o atendimento comum.",
+             "ref": "Dawson et al. (2010), Pediatrics"},
+            {"kicker": "Quem participa", "emoji": "people_hugging",
+             "head": "[[A família]] junto",
+             "text": "No estudo, terapeutas e pais aplicavam a intervenção. As decisões sobre o cuidado devem ser tomadas com a família.",
+             "ref": "Dawson et al. (2010); Hyman et al. (2020)"},
+        ],
+        "cta": {"lead": "Notou sinais no seu filho?", "head": "Faça o rastreio gratuito"},
+        "caption": """Começar cedo faz diferença? Sim — e por isso o rastreio importa.
+
+O autismo pode ser diagnosticado a partir dos 18 meses, e há intervenções com evidência que podem ajudar.
+
+Num ensaio clínico com 48 crianças de 18 a 30 meses, as que receberam dois anos de intervenção precoce, aplicada por terapeutas e pelos próprios pais, ganharam em média 17,6 pontos em testes cognitivos. No grupo com atendimento comum, o ganho foi de 7,0.
+
+Não se trata de mudar quem a criança é, e sim de dar apoio no momento em que ele rende mais — com a família participando das decisões.
+
+Hyman et al. (2020), Pediatrics; Dawson et al. (2010), Pediatrics.
+
+{CLOSE}
+
+#intervencaoprecoce #autismoinfantil #rastreio #autismo #TEA""",
+    },
+    # ------------------------------------------------------------------ 75
+    {
+        "n": 75, "slug": "monotropismo", "format": "foto", "motif": "beam",
+        "ref": "Murray, Lesser & Lawson (2005), Autism",
+        "cover": {
+            "pre": "Precisamos falar sobre",
+            "hl": "monotropismo",
+            "sub": "Uma teoria sobre **atenção** que ajuda a entender **o autismo**.",
+        },
+        "body": [
+            {"kicker": "A ideia",
+             "text": "A atenção autista tende a se concentrar em [[poucos interesses de cada vez]] — e com muita intensidade.",
+             "more": "Como uma lanterna de feixe estreito, e não uma luz que ilumina a sala inteira."},
+            {"kicker": "O que explica",
+             "text": "Para os autores, as dificuldades sociais e de comunicação [[decorrem desse jeito de distribuir a atenção]].",
+             "more": "Conversa em grupo pede atenção espalhada. É justamente o que custa mais."},
+            {"kicker": "Quem propôs",
+             "text": "A teoria foi escrita por pesquisadores — [[entre eles, uma pessoa autista]].",
+             "more": "Parte dela vem da experiência de quem vive o autismo por dentro."},
+        ],
+        "cta": {"lead": "Sua atenção funciona assim?", "hl": "Vale fazer um rastreio."},
+        "caption": """Monotropismo: uma teoria sobre atenção que ajuda a entender o autismo.
+
+A ideia é que a atenção autista tende a se concentrar em poucos interesses de cada vez, com muita intensidade — como uma lanterna de feixe estreito, e não uma luz que ilumina a sala inteira.
+
+Para os autores, isso ajuda a explicar o resto: conversa em grupo, mudança de assunto e interrupções pedem atenção espalhada, que é justamente o que custa mais.
+
+A teoria foi escrita por pesquisadores, entre eles uma pessoa autista, e parte da experiência de quem vive o autismo por dentro. É uma teoria, não um diagnóstico.
+
+Murray, Lesser & Lawson (2005), Autism.
+
+{CLOSE}
+
+#monotropismo #hiperfoco #autismoadulto #autismo #TEA""",
     },
 ]
 
