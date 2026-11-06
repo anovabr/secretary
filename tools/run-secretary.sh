@@ -22,6 +22,21 @@ set -a; . ./.env; set +a
 mkdir -p reports
 REPORT="reports/$(date +%F).txt"
 
+# Instagram tokens last 60 days and lapse silently; both did on 2026-11-02
+# because nobody ran the monthly refresh. The Monday morning run renews them
+# and writes them into .env itself (never printed), then reloads.
+case " $* " in
+  *" --hourly "*|*" --dry-run "*) ;;
+  *) if [ "$(date +%u)" = 1 ]; then
+       {
+         echo
+         echo "═══ $(date '+%H:%M') · tokens do Instagram ═══"
+         python3 -m secretary.cli refresh-tokens --write .env || true
+       } >> "$REPORT" 2>&1
+       set -a; . ./.env; set +a
+     fi ;;
+esac
+
 # Each run appends, so the hourly checks accumulate under the morning report
 # and the whole day reads as one document.
 {

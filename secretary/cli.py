@@ -137,16 +137,29 @@ def cmd_reply(args) -> int:
 
 
 def cmd_refresh(args) -> int:
-    """Refresh every token. Prints the new values for you to store; nothing is written."""
+    """Refresh every token.
+
+    Without --write, prints the new values for you to store. With --write PATH,
+    stores them in that .env and prints only the outcome — never the token.
+    Exits 1 if any account failed, so cron and the report can see it.
+    """
+    from .envfile import set_values
+
+    failed = False
     for handle, account in sorted(load_accounts().items()):
         try:
             result = Instagram(account).refresh_token()
             days = int(result.get("expires_in", 0)) // 86400
-            print(f"  {handle:<20} renewed, valid {days} more days")
-            print(f"      {_env_var(handle)}={result['access_token']}")
+            if args.write:
+                set_values(args.write, {_env_var(handle): result["access_token"]})
+                print(f"  ✓ token de {handle} renovado, válido por mais {days} dias")
+            else:
+                print(f"  {handle:<20} renewed, valid {days} more days")
+                print(f"      {_env_var(handle)}={result['access_token']}")
         except InstagramError as exc:
-            print(f"  {handle:<20} FAILED  {exc}")
-    return 0
+            failed = True
+            print(f"  ✗ token de {handle} NÃO renovado: {exc}")
+    return 1 if failed else 0
 
 
 def _env_var(handle: str) -> str:
@@ -169,7 +182,9 @@ def main(argv: list[str] | None = None) -> int:
     sub = parser.add_subparsers(dest="command", required=True)
 
     sub.add_parser("whoami", help="check every configured token").set_defaults(func=cmd_whoami)
-    sub.add_parser("refresh-tokens", help="extend every token by 60 days").set_defaults(func=cmd_refresh)
+    p = sub.add_parser("refresh-tokens", help="extend every token by 60 days")
+    p.add_argument("--write", metavar="ENV_FILE", help="store the new tokens in this .env instead of printing them")
+    p.set_defaults(func=cmd_refresh)
 
     p_inbox = sub.add_parser("inbox", help="comments nobody has replied to")
     p_inbox.add_argument("--account")

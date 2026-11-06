@@ -30,14 +30,16 @@ report for a person. Widen it freely; do not narrow it without being asked.
 ## Running
 
 ```bash
-python3 -m unittest discover -s secretary -p "test_*.py" -t .   # 131 tests, no network
+python3 -m unittest discover -s secretary -p "test_*.py" -t .   # 135 tests, no network
 python3 -m secretary.cli whoami                                  # check both tokens
 ./tools/run-secretary.sh --dry-run                               # whole routine, writes nothing
 ```
 
-Tokens last 60 days. `python3 -m secretary.cli refresh-tokens` prints new ones
-to paste into `.env`; run it monthly, well before expiry. Once a token lapses
-the whole browser flow has to be redone by hand.
+Tokens last 60 days. The Monday 07:00 run renews both and writes them into
+`.env` itself (`refresh-tokens --write .env`, never printed); the outcome is
+at the top of that day's report. Both lapsed on 2026-11-02 because the old
+manual monthly refresh never happened. Once a token lapses the whole browser
+flow in `docs/instagram-setup.md` §4 has to be redone by hand.
 
 ## The board is the routine
 

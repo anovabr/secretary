@@ -157,11 +157,14 @@ Tokens last 60 days and can be renewed any time after they are 24 hours old.
 If one lapses, the whole browser flow has to be repeated by hand — so renew on
 a schedule, not on expiry:
 
+This is automatic: the Monday morning run calls
+
 ```bash
-python -m secretary.cli refresh-tokens
+python -m secretary.cli refresh-tokens --write .env
 ```
 
-Run it monthly. It prints new values; update `.env` and restart the service.
+which stores the new tokens in `.env` without printing them and reports the
+outcome in that day's report. Without `--write` it prints them instead.
 
 ## Limits worth knowing
 
