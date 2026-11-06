@@ -184,13 +184,11 @@ Open, roughly in the order the owner wants them:
 - **`pankeka.app` has no posts.** `media/pankeka.app/` is empty, and nobody
   has yet said what the app does or who it is for — ask before writing
 - Its standard DM reply is a placeholder written without knowing the product
-- Report delivery: `reports/<date>.txt`; the 07:00 run e-mails it via `secretary/deliver.py` once SMTP_PASSWORD (Titan, contato@anovasaude.org) is in .env
+- Report delivery: `reports/<date>.txt`, e-mailed by the 07:00 run via `secretary/deliver.py` (Titan SMTP, contato@anovasaude.org; working since 2026-11-06 — needed "Enable Titan on other apps" in webmail)
 - **The anovasaude admin panels** — three of the four tasks on the owner's
   board, and the largest remaining piece. See `docs/paineis.md`: a read-only
   JSON endpoint beats browser automation by a wide margin, and the choice is
   the owner's to make
-- **`contato@anovasaude.org` triage** — not built; the mail provider is still
-  unknown, which decides between an API and plain IMAP
-- **Report delivery by email** — wanted, not built. Currently a file in
-  `reports/` plus whatever cron mails locally. Needs an SMTP account
+- **`contato@anovasaude.org` triage** — not built. The mailbox is Titan and
+  IMAP (imap.titan.email:993, same SMTP_PASSWORD) logs in, so plain IMAP it is
 - **The other sites on this VPS** — not yet looked at; ask what they are
