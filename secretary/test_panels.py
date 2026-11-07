@@ -104,6 +104,61 @@ class TestAutismoSaude(PanelCase):
         self.assertEqual(f.attention, [])
 
 
+class TestAds(PanelCase):
+    """The /anuncio block: tagged visits and screenings, and the whole site against before."""
+
+    VISITS = """
+    CREATE TABLE site_visits (id INTEGER PRIMARY KEY AUTOINCREMENT, visit_id TEXT, utm_source TEXT,
+      created_at TEXT DEFAULT (datetime('now')));
+    """
+
+    def read(self, db):
+        with patch.object(AutismoSaude, "db", db):
+            return read_panel("https://autismo.anovasaude.org/admin.html", state_path=self.state, advance=False)
+
+    def ad_line(self, f):
+        return next(((w, d) for w, d in f.done if w.startswith("Anúncio")), None)
+
+    def test_no_ad_visits_means_no_block(self):
+        db = self.make_db("users.db", AUTISMO_SCHEMA + self.VISITS)
+        with sqlite3.connect(db) as c:
+            c.execute("INSERT INTO site_visits (visit_id) VALUES ('v1')")
+        self.assertIsNone(self.ad_line(self.read(db)))
+
+    def test_database_without_visit_tracking_is_fine(self):
+        self.assertIsNone(self.ad_line(self.read(self.make_db("users.db", AUTISMO_SCHEMA))))
+
+    def test_counts_tagged_visits_and_screenings_against_the_fortnight_before(self):
+        db = self.make_db("users.db", AUTISMO_SCHEMA + self.VISITS)
+        with sqlite3.connect(db) as c:
+            c.execute("ALTER TABLE test_attempts ADD COLUMN utm_source TEXT")
+            # before the ad: 28 visits and 7 screenings over the fortnight → 2 and 0.5 a day
+            for i in range(28):
+                c.execute("INSERT INTO site_visits (visit_id, created_at) VALUES (?, datetime('now', '-5 days'))", (f"o{i}",))
+            for i in range(7):
+                c.execute("INSERT INTO test_attempts (session_token, instrument_id, created_at) "
+                          "VALUES (?, 'rabesp-a', datetime('now', '-5 days'))", (f"o{i}",))
+            c.execute("INSERT INTO site_visits (visit_id, utm_source, created_at) VALUES ('a0', 'anuncio', datetime('now', '-2 days'))")
+            c.execute("INSERT INTO site_visits (visit_id, utm_source) VALUES ('a1', 'anuncio')")
+            c.execute("INSERT INTO site_visits (visit_id, utm_source) VALUES ('a2', 'anuncio')")
+            c.execute("INSERT INTO site_visits (visit_id) VALUES ('bio')")
+            # one ad visitor finished two questionnaires — one screening
+            c.execute("INSERT INTO test_attempts (session_token, instrument_id, utm_source) VALUES ('t1', 'rabesp-a', 'anuncio')")
+            c.execute("INSERT INTO test_attempts (session_token, instrument_id, utm_source) VALUES ('t1', 'rabesp-m', 'anuncio')")
+            c.execute("INSERT INTO test_attempts (session_token, instrument_id) VALUES ('t2', 'rabesp-a')")
+        what, detail = self.ad_line(self.read(db))
+        self.assertEqual(what, "Anúncio: 2 visitas nas últimas 24h, 1 rastreio concluído")
+        self.assertIn(": 3 visitas, 1 rastreio\n", detail)
+        self.assertIn("site inteiro nas últimas 24h: 3 visitas, 2 rastreios", detail)
+        self.assertIn("média de 2 visitas e 0.5 rastreios por dia", detail)
+
+    def test_screenings_are_left_out_until_the_site_tags_them(self):
+        db = self.make_db("users.db", AUTISMO_SCHEMA + self.VISITS)
+        with sqlite3.connect(db) as c:
+            c.execute("INSERT INTO site_visits (visit_id, utm_source) VALUES ('a1', 'anuncio')")
+        self.assertEqual(self.ad_line(self.read(db))[0], "Anúncio: 1 visita nas últimas 24h")
+
+
 class TestLookup(unittest.TestCase):
     def test_urls_are_matched_loosely(self):
         self.assertIsInstance(panel_for("https://anovasaude.org/admin/"), AnovaSaude)

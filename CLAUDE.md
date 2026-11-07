@@ -30,7 +30,7 @@ report for a person. Widen it freely; do not narrow it without being asked.
 ## Running
 
 ```bash
-python3 -m unittest discover -s secretary -p "test_*.py" -t .   # 135 tests, no network
+python3 -m unittest discover -s secretary -p "test_*.py" -t .   # 139 tests, no network
 python3 -m secretary.cli whoami                                  # check both tokens
 ./tools/run-secretary.sh --dry-run                               # whole routine, writes nothing
 ```
@@ -70,7 +70,7 @@ reported as "não entendi" with the known list. `.secretary-panels.json`
 holds per-table watermarks so each morning reports only what is new; dry
 runs never advance it. **Those databases hold names and e-mails: tests use
 fake databases, never the real files, and the report is the only place
-their contents go.** The permission classifier blocks ad-hoc reads of them
+their contents go.** Paid boosts link to autismo.anovasaude.org/anuncio (utm_source=anuncio); the autismo panel adds an "Anúncio" line — tagged visits and finished screenings, and the whole site against the 14 days before the first ad visit. The permission classifier blocks ad-hoc reads of them
 from a Claude session; that is fine — cron reads them.
 
 ## How it works

@@ -165,6 +165,8 @@ class AutismoSaude(Panel):
             self._mark(conn, "instrument_starts", f)
             self._mark(conn, "test_attempts", f)
 
+            self._ads(conn, f)
+
             try:
                 paid = self._new(conn, "payments", marks, where="status = 'approved'",
                                  cols="id, plan, amount_charged, created_at")
@@ -176,6 +178,53 @@ class AutismoSaude(Panel):
             except sqlite3.OperationalError as exc:      # the payments table may change shape
                 f.atencao("Não consegui ler os pagamentos", str(exc))
         return f
+
+    # Paid boosts link to /anuncio, which lands with utm_source=anuncio; the site keeps that
+    # tag on the visit (site_visits) and, since 2026-11-07, on each finished test
+    # (test_attempts.utm_source). Windows are by date, not watermark: the same numbers
+    # every time they are read, so a dry run changes nothing.
+    AD_SOURCE = "anuncio"
+    BASELINE_DAYS = 14
+
+    def _ads(self, conn, f: Findings) -> None:
+        try:
+            first = conn.execute("SELECT MIN(created_at) FROM site_visits WHERE utm_source = ?",
+                                 (self.AD_SOURCE,)).fetchone()[0]
+        except sqlite3.OperationalError:
+            return                                   # no visit tracking in this database
+        if not first:
+            return                                   # no ad has brought anyone yet
+
+        def one(sql, *args):
+            return conn.execute(sql, args).fetchone()[0] or 0
+
+        day = "created_at >= datetime('now', '-1 day')"
+        visits_day = one(f"SELECT COUNT(*) FROM site_visits WHERE utm_source = ? AND {day}", self.AD_SOURCE)
+        visits_all = one("SELECT COUNT(*) FROM site_visits WHERE utm_source = ?", self.AD_SOURCE)
+        try:
+            tests_day = one(f"SELECT COUNT(DISTINCT session_token) FROM test_attempts "
+                            f"WHERE utm_source = ? AND {day}", self.AD_SOURCE)
+            tests_all = one("SELECT COUNT(DISTINCT session_token) FROM test_attempts WHERE utm_source = ?",
+                            self.AD_SOURCE)
+            tests = (f", {_plural(tests_day, 'rastreio concluído', 'rastreios concluídos')}",
+                     f", {_plural(tests_all, 'rastreio', 'rastreios')}")
+        except sqlite3.OperationalError:             # site not yet restarted with the tag
+            tests = ("", "")
+
+        # The whole site against the fortnight before the first ad visit: catches people who
+        # saw the ad and came later by the bio or by typing the address.
+        site_day = one(f"SELECT COUNT(*) FROM site_visits WHERE {day}")
+        done_day = one(f"SELECT COUNT(DISTINCT session_token) FROM test_attempts WHERE {day}")
+        window = f"created_at >= datetime(?, '-{self.BASELINE_DAYS} days') AND created_at < ?"
+        site_base = one(f"SELECT COUNT(*) FROM site_visits WHERE {window}", first, first) / self.BASELINE_DAYS
+        done_base = one(f"SELECT COUNT(DISTINCT session_token) FROM test_attempts WHERE {window}",
+                        first, first) / self.BASELINE_DAYS
+
+        f.feito(f"Anúncio: {_plural(visits_day, 'visita', 'visitas')} nas últimas 24h{tests[0]}",
+                f"desde {first[8:10]}/{first[5:7]}: {_plural(visits_all, 'visita', 'visitas')}{tests[1]}\n"
+                f"site inteiro nas últimas 24h: {site_day} visitas, {done_day} rastreios — "
+                f"nos {self.BASELINE_DAYS} dias antes do anúncio, média de "
+                f"{site_base:.0f} visitas e {done_base:.1f} rastreios por dia")
 
 
 PANELS: dict[str, type[Panel]] = {
